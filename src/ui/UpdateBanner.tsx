@@ -4,13 +4,15 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
  * A new deploy installs in the background; the app only switches to it when you tap Reload
  * (or next time it is opened), so it never reloads in the middle of a match.
  */
-export function UpdateBanner() {
+export function UpdateBanner({ visible }: { visible: boolean }) {
+  // Always mounted so the service worker registers (and the app works offline) whatever screen opens first.
   const {
     needRefresh: [needRefresh],
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = useRegisterSW();
 
+  if (!visible) return null;
   if (needRefresh) {
     return (
       <div className="banner" role="status">

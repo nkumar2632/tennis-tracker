@@ -6,7 +6,7 @@ two ever disagree; update this file when a decision changes.
 ## Status
 
 - [x] **Phase 1:** data model, scoring engine, stats, storage, tests, debug UI, deploy pipeline
-- [ ] **Phase 2:** match setup, point entry, resume, backup/restore
+- [x] **Phase 2:** match setup, point entry, resume, backup/restore
 - [ ] **Phase 3:** per-match stats, timeline, PDF report, Excel export
 - [ ] **Phase 4:** season view, trends, head-to-head
 
@@ -28,6 +28,10 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Screen sleep | Not built; the owner turns off Auto-Lock when charting. |
 | 1st serve % per game chart | Keep it (Phase 3), per service game, both players. |
 | Layout | Son always on the left and listed first; light high-contrast theme. |
+| Logged-point feedback (Phase 1 testing) | Every tap that logs a point shows "✓ Point N · Sam: forehand winner" (flashes), the score pops, and the tapped button flashes. Undo shows what it undid. The stroke question sits in its own fixed row so nothing moves between taps. |
+| Second serve (Phase 1 testing) | After Fault, a yellow "2ND SERVE" banner shows and Fault becomes Double fault. A second serve that goes in needs no extra tap: just log how the point ended. |
+| Which stroke (Phase 1 testing) | The shot that ended the point, by the player whose button was tapped: the winner's shot for a winner, the missed shot for an error (even though the other player won the point). The question names the player and ending, e.g. "Lee's unforced error: which shot?". |
+| Testing tools | The Phase 1 debug screen stays under Settings → Testing tools (sample matches for trying the app). |
 | Surfaces | Hard, clay, grass; indoor/outdoor is separate. |
 | Season view | Trends are son-only; per-match stats show both players. |
 | PDF | US Letter, single column. |
@@ -99,9 +103,9 @@ Everything else is derived:
 match tiebreak, rotation); replay; every stat; season aggregation; Dexie schema v1; unit and property
 tests; debug UI; GitHub Pages deploy workflow; CLAUDE.md; README; this plan.
 
-**Phase 2:** home, settings (son's name), match setup (with late start), point entry with stroke
+**Phase 2 (done):** home, settings (son's name), match setup (with late start), point entry with stroke
 strip, undo, point list with edit/insert/delete, auto-save, resume, end early/suspend, JSON
-backup/restore.
+backup/restore. UI tests (Testing Library + happy-dom) cover point entry, setup and the point editor.
 
 **Phase 3:** match stats (Match/Set tabs; only collected stats; stroke tables only when recorded),
 plain-language timeline, 1st-serve-% per game chart, PDF report (incl. match vs season averages with
