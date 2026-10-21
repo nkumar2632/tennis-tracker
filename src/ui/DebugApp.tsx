@@ -1,6 +1,6 @@
 /**
- * Phase 1 debug screen: exercise the scoring engine, stats and storage on a phone.
- * Replaced by the real screens in Phase 2.
+ * Testing tools (Settings → Testing tools): exercise the scoring engine and stats directly, and
+ * generate random sample matches to try the app with. Not part of normal use.
  */
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -31,8 +31,9 @@ import {
 import type { BySide, Match, MatchFormat, Side, Stroke } from '../domain/types';
 import { STROKES, isServeEnding } from '../domain/types';
 import { db } from '../storage/db';
-import { deleteMatch, getMatch, getSetting, listMatches, requestPersistentStorage, saveMatch, setSetting } from '../storage/repo';
-import { UpdateBanner } from './UpdateBanner';
+import { deleteMatch, getMatch, listMatches, requestPersistentStorage } from '../storage/repo';
+import { commitMatch, forgetMatch } from './store';
+import './debug.css';
 
 const NAMES: BySide<string> = { player: 'Player', opponent: 'Opponent' };
 const SHORT: BySide<string> = { player: 'P', opponent: 'O' };
@@ -153,20 +154,14 @@ export function DebugApp() {
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const matches = useLiveQuery(() => listMatches(db), []);
 
-  // Resume whatever was being charted when the app was closed.
   useEffect(() => {
-    void (async () => {
-      setPersisted(await requestPersistentStorage());
-      const id = await getSetting(db, 'activeMatchId');
-      if (id) setMatch((await getMatch(db, id)) ?? null);
-    })();
+    void requestPersistentStorage().then(setPersisted);
   }, []);
 
   const commit = async (next: Match) => {
     setMatch(next);
     setError(null);
-    await saveMatch(db, next);
-    await setSetting(db, 'activeMatchId', next.id);
+    await commitMatch(next);
   };
 
   const act = (fn: (m: Match) => Match) => {
@@ -208,12 +203,12 @@ export function DebugApp() {
   const outcome = match && r ? matchOutcome(match, r) : null;
 
   return (
-    <div className="app">
-      <UpdateBanner />
+    <div className="debug">
+      <a href="#/settings">‹ Settings</a>
       <header>
-        <h1>Tennis Tracker</h1>
+        <h1>Testing tools</h1>
         <p className="muted">
-          Phase 1 debug screen · build {__APP_VERSION__} · storage {persisted === null ? '…' : persisted ? 'persistent' : 'best-effort'}
+          Engine debug screen · build {__APP_VERSION__} · storage {persisted === null ? '…' : persisted ? 'persistent' : 'best-effort'}
         </p>
       </header>
 
@@ -246,7 +241,7 @@ export function DebugApp() {
             onClick={async () => {
               if (!confirm('Delete this match?')) return;
               await deleteMatch(db, match.id);
-              await setSetting(db, 'activeMatchId', null);
+              forgetMatch(match.id);
               setMatch(null);
             }}
           >

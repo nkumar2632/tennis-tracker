@@ -18,6 +18,22 @@ When a new version is deployed, the app shows **"A new version is ready — Relo
 reloads by itself, so an update can't interrupt a match. Closing and reopening the app also
 picks up the new version.
 
+## Charting a match
+
+- **New match:** the opponent, who serves first, and the format are all you need; the rest can be
+  filled in later from the match menu (••• → Match details).
+- **One tap per point** on the first serve: Ace, Unreturned, or how the rally ended (Winner /
+  Unforced error / Forced error, under the player who hit that shot).
+- **Fault** on a first serve: the yellow 2ND SERVE banner appears. If the second serve goes in, just
+  log how the point ended; if it misses, tap Double fault.
+- **Which shot?** (optional): the shot that ended the point, by the player whose button you tapped.
+  Tag a missed return as **Return** so return-in-play % counts it.
+- **Undo** steps back one tap. Tap the last-point line, or **Points**, to change, delete or insert
+  any point.
+- The app saves after every tap and reopens the match if it's closed. ••• also has Suspend and End
+  match early (retired / stopped).
+- **Back up** from Settings after matches: everything lives only on the phone.
+
 ## Run locally
 
 Requires Node 22.12 or newer.
@@ -38,8 +54,10 @@ npm run typecheck   # TypeScript
 npm run check       # both
 ```
 
-Tests live next to the code (`src/**/*.test.ts`). The scoring engine and stats in `src/domain/`
-are pure functions, so nearly everything is tested without a browser.
+Tests live next to the code (`src/**/*.test.ts(x)`). The scoring engine and stats in `src/domain/`
+are pure functions, so nearly everything is tested without a browser. Screen tests
+(`src/ui/screens/*.test.tsx`) render the real screens with Testing Library in happy-dom, against an
+in-memory IndexedDB.
 
 ## Deploy
 
@@ -57,6 +75,7 @@ You can also redeploy by hand from the **Actions** tab ("Test and deploy" → "R
 ```
 src/domain/    scoring engine, point log, stats: pure TypeScript, no browser APIs
 src/storage/   IndexedDB (Dexie) database and save/load functions
-src/ui/        React screens (Phase 1: a debug screen only)
+src/ui/        React app: screens/, routes, settings, the in-memory match store
+src/ui/DebugApp.tsx  Settings → Testing tools (engine debug screen, sample matches)
 public/        app icons
 ```

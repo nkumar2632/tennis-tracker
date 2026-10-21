@@ -1,0 +1,248 @@
+/* Testing tools screen only: every rule is scoped to .debug. */
+.debug {
+  --line: #d4d4d4;
+  --accent: #14532d;
+  --accent-fg: #ffffff;
+  --danger: #b91c1c;
+  --card: #f5f5f4;
+  --muted: #555;
+}
+
+.debug {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+
+.debug h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.debug .muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+
+.debug .card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.debug .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.debug .row select {
+  flex: 1;
+  min-width: 0;
+}
+
+.debug label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  margin: 8px 0;
+}
+
+.debug label.check {
+  flex-direction: row;
+  align-items: center;
+}
+
+.debug input,
+.debug select {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--fg);
+}
+
+.debug button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.debug button:disabled {
+  opacity: 0.4;
+}
+
+.debug button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.debug button.small {
+  padding: 2px 8px;
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.debug button.big {
+  width: 100%;
+  min-height: 56px;
+  font-size: 1.05rem;
+}
+
+.debug .grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.debug .grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.debug .rally {
+  margin-top: 12px;
+}
+
+.debug .rally > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debug .col-head {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.debug .score-row {
+  display: flex;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  align-items: center;
+}
+
+.debug .score-row .name {
+  flex: 1;
+  font-weight: 700;
+}
+
+.debug .serve-dot {
+  width: 1em;
+  color: var(--accent);
+}
+
+.debug .set.current {
+  font-weight: 800;
+}
+
+.debug .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.debug .chip {
+  background: #fff;
+  color: var(--accent);
+  padding: 8px 12px;
+}
+
+.debug .chip.on {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.debug .tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.debug .tabs button {
+  background: #fff;
+  color: var(--accent);
+  padding: 6px 12px;
+}
+
+.debug .tabs button.on {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.debug table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.debug th,
+.debug td {
+  text-align: left;
+  padding: 4px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.debug .log {
+  padding-left: 2.2em;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.debug .log li {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.debug .log li {
+  display: list-item;
+}
+
+.debug .log li span {
+  margin-right: 6px;
+}
+
+.debug .error {
+  background: #fee2e2;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 12px 0;
+}
+
+.debug .banner {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.debug .banner button {
+  background: #fff;
+  color: var(--accent);
+  border-color: #fff;
+}
+
+.debug details summary {
+  font-weight: 700;
+  cursor: pointer;
+}
