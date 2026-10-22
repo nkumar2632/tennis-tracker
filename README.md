@@ -26,13 +26,32 @@ picks up the new version.
   Unforced error / Forced error, under the player who hit that shot).
 - **Fault** on a first serve: the yellow 2ND SERVE banner appears. If the second serve goes in, just
   log how the point ended; if it misses, tap Double fault.
+- **Unreturned vs Forced error:** the same moment seen from either side; the button decides who
+  gets the credit. Tap **Unreturned** when the serve caused the miss (lunged, framed it, couldn't
+  handle the pace): it counts for the server, next to aces. For a routine return he missed, tap the
+  returner's **Unforced error** and tag it **Return**. Keep the returner's column otherwise for errors
+  later in the rally.
 - **Which shot?** (optional): the shot that ended the point, by the player whose button you tapped.
-  Tag a missed return as **Return** so return-in-play % counts it.
+  Tag a missed return as **Return** so return-in-play % counts it; untagged, the app assumes the
+  return went in and the error came later.
 - **Undo** steps back one tap. Tap the last-point line, or **Points**, to change, delete or insert
   any point.
 - The app saves after every tap and reopens the match if it's closed. ••• also has Suspend and End
   match early (retired / stopped).
 - **Back up** from Settings after matches: everything lives only on the phone.
+
+## Reviewing and sending a match
+
+Tap a match on Home. Its page has three tabs:
+
+- **Stats:** every stat for both players, for the match or one set at a time, plus winners and
+  unforced errors by stroke (when tagged) and a 1st-serve-% chart by service game.
+- **Timeline:** every point in plain language with the score after it. Tap one to change it.
+- **Report:** how this match compares with his season (the 12 months before it, practice
+  excluded, once there are 3 other matches), and **Share PDF report / Share Excel file / Share
+  both** to send them by Messages, Mail, AirDrop or Save to Files.
+
+Add or fix details (UTRs, notes, event) any time from ••• → Edit match details.
 
 ## Run locally
 

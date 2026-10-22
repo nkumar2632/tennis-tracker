@@ -114,6 +114,20 @@ describe('match details', () => {
     await waitFor(async () => expect(await getMatch(db, 'm1')).toMatchObject({ opponentUtr: 7.4, notes: 'Windy', points: m.points }));
   });
 
+  it('adds UTRs to a finished match afterwards, keeping the result', async () => {
+    const m = { ...play(newMatch(FORMAT_PRESETS.proSet8, { opponentName: 'Lee' }), 'gp*8'), id: 'm1' };
+    expect(m.status).toBe('completed');
+    await seed(m);
+    renderAt('/match/m1/edit');
+    await screen.findByText('Who serves first?');
+    type("Opponent's UTR", '7.4');
+    type("Sam's UTR", '7.1');
+    tap('Save');
+    await waitFor(async () =>
+      expect(await getMatch(db, 'm1')).toMatchObject({ opponentUtr: 7.4, playerUtr: 7.1, status: 'completed', points: m.points }),
+    );
+  });
+
   it('refuses a format change that would end the match before the last point', async () => {
     await seed({ ...play(newMatch(FORMAT_PRESETS.bestOf3, { opponentName: 'Lee' }), 'gp*7'), id: 'm1' });
     renderAt('/match/m1/edit');

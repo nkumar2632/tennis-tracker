@@ -7,7 +7,7 @@ two ever disagree; update this file when a decision changes.
 
 - [x] **Phase 1:** data model, scoring engine, stats, storage, tests, debug UI, deploy pipeline
 - [x] **Phase 2:** match setup, point entry, resume, backup/restore
-- [ ] **Phase 3:** per-match stats, timeline, PDF report, Excel export
+- [x] **Phase 3:** per-match stats, timeline, PDF report, Excel export
 - [ ] **Phase 4:** season view, trends, head-to-head
 
 Stop at the end of each phase so the owner can test on their iPhone.
@@ -17,13 +17,15 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Topic | Decision |
 |---|---|
 | Platform | PWA (not SwiftUI): offline, IndexedDB, installed to the home screen, hosted on GitHub Pages. |
-| Missed returns | Usually logged as a rally-grid error (unforced/forced) by the receiver. Return-in-play % counts an error as a missed return when it is tagged with the **Return** stroke, so the stroke strip lists Return first whenever the receiver made the error. "Unreturned serve" also counts as not in play. |
+| Missed returns (Unreturned vs Forced error) | They are the same moment seen from either side; the button decides who it's credited to. **Unreturned** (serve row) = the serve caused the miss (he lunged, framed it, couldn't handle the pace): one tap, credited to the server next to aces, and always counts as a return not in play. A routine return he missed = the returner's **Unforced error** tagged **Return**. Otherwise the returner's column is for rally errors, so "forced errors" means rally shots. A returner's error without the Return tag counts as a return that went in (the error is assumed to come later in the rally). Score, serve/return points won, break points and pressure points come out the same either way. |
+| Unreturned serves stat | Shown in the Phase 3 serve stats next to aces, for both players (collected by the Unreturned button). |
 | Matches that don't finish | "End match early" with a reason: **retired** (counts in win/loss), **stopped** (e.g. dual already decided; excluded from win/loss, stats still count), or **suspended** (resumable later). |
 | Late start | Setup takes an optional starting score (finished sets, current games, who serves next). Charting starts at the beginning of a game. Stats cover charted points only. |
 | Editing | Any past point can be changed, deleted, or a missed point inserted. Later points are re-scored and their servers re-derived. |
 | Formats | Presets: best of 3 (7-pt tiebreak at 6-6), 2 sets + 10-pt match tiebreak, 8-game pro set (7-pt tiebreak at 8-8). No-ad is a separate toggle. Games per set, tiebreak score, tiebreak points and match tiebreak points are all adjustable. |
 | Season | No fixed season: filter by date range. Practice matches are excluded from the record and season averages by default (toggle). |
-| UTR | Opponent UTR, handedness and the son's UTR are optional and can be filled in later. **Open:** confirm how the UTR band filter should work before Phase 4. |
+| UTR | Opponent UTR, handedness and the son's UTR are optional, and can be added or changed any time, including after the match (match page → Edit match details). New matches prefill his UTR from the last match and an opponent's from past matches against them. |
+| UTR band filter (Phase 4) | Relative to his rating at the time: opponent's UTR minus his. Bands: **Lower** (more than 0.5 below), **Even** (within 0.5), **Higher** (more than 0.5 above). If his UTR is blank for a match, use his UTR from the nearest-dated match that has one. If the opponent's UTR is blank, or the son's UTR isn't recorded on any match, the match goes in **Unknown**; that group lists the matches so a UTR can be added with one tap. |
 | Backup | JSON backup/restore moved up to Phase 2. Restore replaces all data after a confirmation. |
 | Screen sleep | Not built; the owner turns off Auto-Lock when charting. |
 | 1st serve % per game chart | Keep it (Phase 3), per service game, both players. |
@@ -34,7 +36,10 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Testing tools | The Phase 1 debug screen stays under Settings → Testing tools (sample matches for trying the app). |
 | Surfaces | Hard, clay, grass; indoor/outdoor is separate. |
 | Season view | Trends are son-only; per-match stats show both players. |
-| PDF | US Letter, single column. |
+| PDF | US Letter, single column; key stats on page 1. Uses the built-in Helvetica font (no 850 kB download), which prints Western European characters only (é, ü, ñ are fine; other scripts show as "?"). |
+| Season comparison (Phase 3) | Baseline: other finished matches (completed, retired or stopped) with charted points, in the 12 months up to the match date, practice excluded. Needs at least 3. Every compared stat is a rate, so short and long matches compare fairly: aces and double faults as % of service points, winners and unforced errors as % of points played. A rate needs at least 5 chances in both the match and the season. The 3 biggest differences each way (at least 3 percentage points) are highlighted as "better/worse than usual". |
+| Excel (Phase 3) | Two sheets: **Points** (one row per point: set, game, server, serve, score before, how it ended, by whom, stroke, who won it, games and points after, break/pressure point) and **Stats** (match and each set side by side, plus strokes and notes). |
+| Timeline (Phase 3) | Chronological on the match page; the live Points list (from point entry) is the same view, newest first. Score after each point is server first; games scores are the son first. |
 
 ## Tech stack
 
@@ -107,10 +112,10 @@ tests; debug UI; GitHub Pages deploy workflow; CLAUDE.md; README; this plan.
 strip, undo, point list with edit/insert/delete, auto-save, resume, end early/suspend, JSON
 backup/restore. UI tests (Testing Library + happy-dom) cover point entry, setup and the point editor.
 
-**Phase 3:** match stats (Match/Set tabs; only collected stats; stroke tables only when recorded),
-plain-language timeline, 1st-serve-% per game chart, PDF report (incl. match vs season averages with
-the biggest differences highlighted, and notes), Excel export (points sheet + stats sheet), share
-sheet. Check .xlsx sharing on iOS early.
+**Phase 3 (done):** match page with Stats (Match/Set tabs; all collected stats including unreturned
+serves; stroke table when strokes were recorded; 1st-serve-% chart by service game), Timeline (plain
+language, tap to edit), and Report (season comparison on screen; PDF and Excel built when the tab
+opens and shared through the share sheet, or downloaded where sharing files isn't supported).
 
 **Phase 4:** match list (result, opponent, opponent UTR), win/loss record with filters (UTR band,
 event type, surface, date range), trend charts (1st serve %, 2nd serve points won, DFs, UEs,

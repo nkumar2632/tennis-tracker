@@ -92,11 +92,15 @@ export function resultLine(match: Match, r: Replay, names: BySide<string>): stri
   }
 }
 
+/** 1-based number of a game within its set (a set tiebreak is game 13 of a 6-game set). */
+export function gameNumberInSet(game: GameSummary, r: Replay): number {
+  const first = r.points[game.pointIndices[0]!]!;
+  return first.before.games.player + first.before.games.opponent + 1;
+}
+
 /** e.g. "Set 1 · Game 3 · Sam serving", "Set 2 · Tiebreak", "Match tiebreak". */
 export function gameHeading(game: GameSummary, r: Replay, names: BySide<string>): string {
   if (game.kind === 'match_tiebreak') return 'Match tiebreak';
   if (game.kind === 'tiebreak') return `Set ${game.setNumber} · Tiebreak`;
-  const first = r.points[game.pointIndices[0]!]!;
-  const gameInSet = first.before.games.player + first.before.games.opponent + 1;
-  return `Set ${game.setNumber} · Game ${gameInSet} · ${names[game.server]} serving`;
+  return `Set ${game.setNumber} · Game ${gameNumberInSet(game, r)} · ${names[game.server]} serving`;
 }

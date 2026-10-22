@@ -10,46 +10,7 @@ import {
   pct,
   type MatchStats,
 } from './stats';
-import { newMatch, play } from './test-helpers';
-
-/**
- * Hand-charted fixture: 4 games, 28 points, best of 3 with advantage scoring, player serves first.
- * Every expected number below was worked out by hand from this script.
- *
- * Game 1, player serving (held):
- *  1 A        ace (P)                       15-0
- *  2 2pW:fh   2nd serve, P forehand winner  30-0
- *  3 D        double fault (P)              30-15
- *  4 oU:bh    O backhand unforced error     40-15
- *  5 oW:rt    O return winner               40-30
- *  6 pU:fh    P forehand unforced error     40-40
- *  7 2oF      2nd serve, O forced error     AD-in    pressure (deuce)
- *  8 S        unreturned serve (P)          game P   pressure (ad)
- * Game 2, opponent serving (broken):
- *  9 D        double fault (O)              0-15
- * 10 pU:rt    P return unforced error       15-15
- * 11 pW:bh    P backhand winner             15-30
- * 12 oU       O unforced error              15-40
- * 13 2oW:vo   2nd serve, O volley winner    30-40    pressure, break point (saved)
- * 14 pF:rt    P return forced error         40-40    pressure, break point (saved)
- * 15 A        ace (O)                       AD-in    pressure (deuce)
- * 16 pW:fh    P forehand winner             40-40    pressure (ad)
- * 17 oU:fh    O forehand unforced error     AD-out   pressure (deuce)
- * 18 2oU:bh   2nd serve, O backhand UE      game P   pressure, break point (converted)
- * Game 3, player serving (broken: P fails to consolidate, O breaks back):
- * 19 oW:fh  20 oW  21 o                     0-40
- * 22 p                                      15-40    pressure, break point (saved)
- * 23 oU                                     30-40    pressure, break point (saved)
- * 24 2pU:bh                                 game O   pressure, break point (converted)
- * Game 4, opponent serving (held: O consolidates):
- * 25 A  26 A  27 A  28 S                    game O
- */
-const FIXTURE = `
-  A 2pW:fh D oU:bh oW:rt pU:fh 2oF S
-  D pU:rt pW:bh oU 2oW:vo pF:rt A pW:fh oU:fh 2oU:bh
-  oW:fh oW o p oU 2pU:bh
-  A A A S
-`;
+import { HAND_CHARTED as FIXTURE, newMatch, play } from './test-helpers';
 
 const fixture = play(newMatch(), FIXTURE);
 const r = replay(fixture);
