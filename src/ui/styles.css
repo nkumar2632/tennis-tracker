@@ -872,3 +872,265 @@ textarea:focus {
     padding: 8px 12px;
   }
 }
+
+/* ---------- Match page: tabs, stats, chart, timeline, report ---------- */
+
+.match-info {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 4px 0 12px;
+}
+
+.notes-box summary {
+  font-weight: 700;
+  padding: 6px 0;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin: 16px 0 12px;
+  padding: 4px;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
+.tab {
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 9px;
+  font-weight: 700;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.tab.on {
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.scope-tabs {
+  margin-bottom: 12px;
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 20px;
+}
+
+.stat-table caption {
+  text-align: left;
+  font-weight: 800;
+  padding: 8px 0;
+}
+
+.stat-table th,
+.stat-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  vertical-align: middle;
+}
+
+.stat-table th[scope='row'] {
+  text-align: left;
+  font-weight: 500;
+}
+
+.stat-table thead th {
+  font-weight: 800;
+  border-bottom: 2px solid var(--fg);
+}
+
+.stat-table .col-player {
+  color: var(--player);
+}
+
+.stat-section th {
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding-top: 16px;
+}
+
+.stat-value {
+  width: 26%;
+}
+
+.stat-big {
+  display: block;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.stat-small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stroke-table td,
+.stroke-table th {
+  font-size: 0.95rem;
+}
+
+.serve-chart {
+  margin: 8px 0 24px;
+}
+
+.serve-chart figcaption {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.serve-chart svg {
+  width: 100%;
+  height: auto;
+}
+
+.serve-chart .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.serve-chart .axis {
+  font-size: 10px;
+  fill: var(--muted);
+}
+
+.serve-chart .series polyline {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.series-player polyline,
+.series-player circle {
+  stroke: var(--player);
+  fill: var(--player);
+}
+
+.series-opponent polyline,
+.series-opponent circle {
+  stroke: var(--opponent);
+  fill: var(--opponent);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.legend-item.series-player .swatch {
+  background: var(--player);
+}
+
+.legend-item.series-opponent .swatch {
+  background: var(--opponent);
+}
+
+.timeline .game-heading {
+  margin: 0 0 4px;
+}
+
+.game-result {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.point-row {
+  align-items: center;
+}
+
+.point-desc {
+  flex: 1;
+  min-width: 0;
+}
+
+.point-row .point-score {
+  width: auto;
+  text-align: right;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.won-player {
+  box-shadow: inset 4px 0 0 var(--player);
+}
+
+.won-opponent {
+  box-shadow: inset 4px 0 0 var(--line);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--second-serve);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.callout {
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-weight: 700;
+}
+
+.callout-better {
+  background: #dcfce7;
+}
+
+.callout-worse {
+  background: #fee2e2;
+}
+
+.compare-table tr.hl-better {
+  background: #dcfce7;
+}
+
+.compare-table tr.hl-worse {
+  background: #fee2e2;
+}
+
+.compare-table td {
+  width: 16%;
+}
+
+.timeline-key {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.key-bar {
+  display: inline-block;
+  width: 4px;
+  height: 1em;
+  background: var(--player);
+  border-radius: 2px;
+}

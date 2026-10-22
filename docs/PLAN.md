@@ -7,7 +7,7 @@ two ever disagree; update this file when a decision changes.
 
 - [x] **Phase 1:** data model, scoring engine, stats, storage, tests, debug UI, deploy pipeline
 - [x] **Phase 2:** match setup, point entry, resume, backup/restore
-- [ ] **Phase 3:** per-match stats, timeline, PDF report, Excel export
+- [x] **Phase 3:** per-match stats, timeline, PDF report, Excel export
 - [ ] **Phase 4:** season view, trends, head-to-head
 
 Stop at the end of each phase so the owner can test on their iPhone.
@@ -36,7 +36,10 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Testing tools | The Phase 1 debug screen stays under Settings → Testing tools (sample matches for trying the app). |
 | Surfaces | Hard, clay, grass; indoor/outdoor is separate. |
 | Season view | Trends are son-only; per-match stats show both players. |
-| PDF | US Letter, single column. |
+| PDF | US Letter, single column; key stats on page 1. Uses the built-in Helvetica font (no 850 kB download), which prints Western European characters only (é, ü, ñ are fine; other scripts show as "?"). |
+| Season comparison (Phase 3) | Baseline: other finished matches (completed, retired or stopped) with charted points, in the 12 months up to the match date, practice excluded. Needs at least 3. Every compared stat is a rate, so short and long matches compare fairly: aces and double faults as % of service points, winners and unforced errors as % of points played. A rate needs at least 5 chances in both the match and the season. The 3 biggest differences each way (at least 3 percentage points) are highlighted as "better/worse than usual". |
+| Excel (Phase 3) | Two sheets: **Points** (one row per point: set, game, server, serve, score before, how it ended, by whom, stroke, who won it, games and points after, break/pressure point) and **Stats** (match and each set side by side, plus strokes and notes). |
+| Timeline (Phase 3) | Chronological on the match page; the live Points list (from point entry) is the same view, newest first. Score after each point is server first; games scores are the son first. |
 
 ## Tech stack
 
@@ -109,11 +112,10 @@ tests; debug UI; GitHub Pages deploy workflow; CLAUDE.md; README; this plan.
 strip, undo, point list with edit/insert/delete, auto-save, resume, end early/suspend, JSON
 backup/restore. UI tests (Testing Library + happy-dom) cover point entry, setup and the point editor.
 
-**Phase 3:** match stats (Match/Set tabs; only collected stats, including unreturned serves next to aces;
-stroke tables only when recorded),
-plain-language timeline, 1st-serve-% per game chart, PDF report (incl. match vs season averages with
-the biggest differences highlighted, and notes), Excel export (points sheet + stats sheet), share
-sheet. Check .xlsx sharing on iOS early.
+**Phase 3 (done):** match page with Stats (Match/Set tabs; all collected stats including unreturned
+serves; stroke table when strokes were recorded; 1st-serve-% chart by service game), Timeline (plain
+language, tap to edit), and Report (season comparison on screen; PDF and Excel built when the tab
+opens and shared through the share sheet, or downloaded where sharing files isn't supported).
 
 **Phase 4:** match list (result, opponent, opponent UTR), win/loss record with filters (UTR band,
 event type, surface, date range), trend charts (1st serve %, 2nd serve points won, DFs, UEs,

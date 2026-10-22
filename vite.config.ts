@@ -14,6 +14,10 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(appVersion),
   },
+  build: {
+    // pdfmake (~770 kB) is its own chunk, loaded only when a report is made.
+    chunkSizeWarningLimit: 900,
+  },
   plugins: [
     react(),
     VitePWA({

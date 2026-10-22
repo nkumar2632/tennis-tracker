@@ -40,6 +40,19 @@ picks up the new version.
   match early (retired / stopped).
 - **Back up** from Settings after matches: everything lives only on the phone.
 
+## Reviewing and sending a match
+
+Tap a match on Home. Its page has three tabs:
+
+- **Stats:** every stat for both players, for the match or one set at a time, plus winners and
+  unforced errors by stroke (when tagged) and a 1st-serve-% chart by service game.
+- **Timeline:** every point in plain language with the score after it. Tap one to change it.
+- **Report:** how this match compares with his season (the 12 months before it, practice
+  excluded, once there are 3 other matches), and **Share PDF report / Share Excel file / Share
+  both** to send them by Messages, Mail, AirDrop or Save to Files.
+
+Add or fix details (UTRs, notes, event) any time from ••• → Edit match details.
+
 ## Run locally
 
 Requires Node 22.12 or newer.

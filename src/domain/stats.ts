@@ -245,17 +245,20 @@ function isRatio(value: unknown): value is Ratio {
   return typeof value === 'object' && value !== null && 'num' in value && 'den' in value;
 }
 
-/** Ratios are pooled (summed); counts become per-match averages; flags are OR-ed. */
-function combine(values: unknown[]): unknown {
+/** Ratios are pooled (summed); counts are summed or averaged per match; flags are OR-ed. */
+function combine(values: unknown[], counts: 'sum' | 'mean'): unknown {
   const first = values[0];
-  if (typeof first === 'number') return values.reduce<number>((sum, v) => sum + (v as number), 0) / values.length;
+  if (typeof first === 'number') {
+    const total = values.reduce<number>((sum, v) => sum + (v as number), 0);
+    return counts === 'sum' ? total : total / values.length;
+  }
   if (typeof first === 'boolean') return values.some(Boolean);
   if (isRatio(first)) {
     return values.reduce<Ratio>((acc, v) => ({ num: acc.num + (v as Ratio).num, den: acc.den + (v as Ratio).den }), ratio());
   }
   const out: Record<string, unknown> = {};
   for (const key of Object.keys(first as object)) {
-    out[key] = combine(values.map((v) => (v as Record<string, unknown>)[key]));
+    out[key] = combine(values.map((v) => (v as Record<string, unknown>)[key]), counts);
   }
   return out;
 }
@@ -270,5 +273,11 @@ export interface AggregateStats extends MatchStats {
  */
 export function aggregateStats(all: MatchStats[]): AggregateStats | null {
   if (all.length === 0) return null;
-  return { ...(combine(all) as MatchStats), matches: all.length };
+  return { ...(combine(all, 'mean') as MatchStats), matches: all.length };
+}
+
+/** Season totals: every count summed and every ratio pooled, e.g. to compare rates per point. */
+export function sumStats(all: MatchStats[]): AggregateStats | null {
+  if (all.length === 0) return null;
+  return { ...(combine(all, 'sum') as MatchStats), matches: all.length };
 }

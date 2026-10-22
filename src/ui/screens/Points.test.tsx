@@ -29,7 +29,8 @@ describe('points list', () => {
     const rows = screen.getAllByRole('link').filter((a) => a.classList.contains('point-row'));
     expect(rows[0]?.textContent).toContain('#5');
     expect(rows[0]?.textContent).toContain('Lee: backhand winner');
-    expect(screen.getByText(/Set 1 · Game 1 · Sam serving/).textContent).toContain('won by Sam');
+    // A finished game's heading says who won it and the games score after it.
+    expect(screen.getByText(/Set 1 · Game 1 · Sam serving/).closest('h3')!.textContent).toContain('· won by Sam · 1-0');
   });
 });
 
@@ -70,7 +71,7 @@ describe('point editor', () => {
   it('inserts a missed point before another one', async () => {
     const m = play(base, 'p p');
     await seed(m);
-    const view = renderAt(`/match/m1/insert/${m.points[1]!.id}`);
+    const view = renderAt(`/match/m1/points/insert/${m.points[1]!.id}`);
     await screen.findByText(/goes before point 2/);
     tap('Lee unforced error');
     tap('Insert point');

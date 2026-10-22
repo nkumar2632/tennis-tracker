@@ -1,7 +1,7 @@
 /** Every logged point, newest first and grouped by game; tap one to change, delete or insert before it. */
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ENDING_LABELS, STROKE_LABELS, describePoint, gameHeading, strokeChoices } from '../../domain/labels';
+import { ENDING_LABELS, STROKE_LABELS, gameHeading, strokeChoices } from '../../domain/labels';
 import { deletePoint, editPoint, insertPoint, type PointEdit } from '../../domain/log';
 import { isResumable } from '../../domain/match';
 import { replay } from '../../domain/replay';
@@ -10,6 +10,7 @@ import type { Ending, Side } from '../../domain/types';
 import { SIDES, isServeEnding, otherSide } from '../../domain/types';
 import { ErrorBox, TopBar } from '../components';
 import { namesFor, useMatchEditor, useSettings } from '../hooks';
+import { Timeline } from '../match/Timeline';
 
 export function PointsScreen({ id }: { id: string }) {
   const { match } = useMatchEditor(id);
@@ -17,7 +18,6 @@ export function PointsScreen({ id }: { id: string }) {
   if (!match) return <div className="screen">{match === null && <p>That match no longer exists.</p>}</div>;
   const names = namesFor(settings, match);
   const r = replay(match);
-  const games = [...r.games].reverse();
   return (
     <div className="screen">
       <TopBar
@@ -25,30 +25,8 @@ export function PointsScreen({ id }: { id: string }) {
         backLabel={isResumable(match) ? 'Chart' : 'Match'}
         title={`Points (${r.points.length})`}
       />
-      {r.points.length === 0 && <p className="muted">No points logged yet.</p>}
-      <p className="muted">Tap a point to change it, delete it, or insert a missed point before it.</p>
-      {games.map((game) => (
-        <section key={game.number} className="game-group">
-          <h2 className="game-heading">
-            {gameHeading(game, r, names)}
-            {game.winner && <span className="muted"> · won by {names[game.winner]}</span>}
-          </h2>
-          <ol className="point-list">
-            {[...game.pointIndices].reverse().map((i) => {
-              const rp = r.points[i]!;
-              return (
-                <li key={rp.point.id}>
-                  <Link href={`/match/${id}/points/${rp.point.id}`} className="point-row">
-                    <span className="point-num">#{i + 1}</span>
-                    <span className="point-score">{pointScoreLabel(rp.before, rp.server)}</span>
-                    <span className="point-desc">{describePoint(rp, names)}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-      ))}
+      <p className="muted">Newest first. Tap a point to change it, delete it, or insert a missed point before it.</p>
+      <Timeline r={r} names={names} editBase={`/match/${id}/points`} newestFirst />
     </div>
   );
 }
@@ -64,8 +42,21 @@ const RALLY_OPTIONS: [Ending, string][] = [
   ['forced_error', 'Forced error'],
 ];
 
-/** Change one point (`pointId`), or insert a missed point before `beforeId`. */
-export function PointEditorScreen({ id, pointId, beforeId }: { id: string; pointId?: string; beforeId?: string }) {
+/**
+ * Change one point (`pointId`), or insert a missed point before `beforeId`. `list` is where it was
+ * opened from (the live Points list or the match Timeline), which Save and Back return to.
+ */
+export function PointEditorScreen({
+  id,
+  pointId,
+  beforeId,
+  list,
+}: {
+  id: string;
+  pointId?: string;
+  beforeId?: string;
+  list: 'points' | 'timeline';
+}) {
   const { match, apply, error } = useMatchEditor(id);
   const settings = useSettings();
   const [, navigate] = useLocation();
@@ -81,7 +72,7 @@ export function PointEditorScreen({ id, pointId, beforeId }: { id: string; point
   if (!rp) {
     return (
       <div className="screen">
-        <TopBar back={`/match/${id}/points`} title="Point" />
+        <TopBar back={`/match/${id}/${list}`} title="Point" />
         <p>That point no longer exists.</p>
       </div>
     );
@@ -105,7 +96,7 @@ export function PointEditorScreen({ id, pointId, beforeId }: { id: string; point
     setDraft(next);
   };
   const choices = choicesFor(d);
-  const done = () => navigate(`/match/${id}/points`);
+  const done = () => navigate(`/match/${id}/${list}`);
 
   const save = () => {
     const ok = inserting ? apply((m) => insertPoint(m, beforeId!, d)) : apply((m) => editPoint(m, pointId!, d));
@@ -114,7 +105,11 @@ export function PointEditorScreen({ id, pointId, beforeId }: { id: string; point
 
   return (
     <div className="screen">
-      <TopBar back={`/match/${id}/points`} backLabel="Points" title={inserting ? 'Insert missed point' : `Point ${index + 1}`} />
+      <TopBar
+        back={`/match/${id}/${list}`}
+        backLabel={list === 'points' ? 'Points' : 'Timeline'}
+        title={inserting ? 'Insert missed point' : `Point ${index + 1}`}
+      />
       <p className="muted">
         {gameHeading(r.games[rp.gameNumber - 1]!, r, names)} · score before: {pointScoreLabel(rp.before, server)}
         {inserting && ` · goes before point ${index + 1}`}
@@ -198,7 +193,7 @@ export function PointEditorScreen({ id, pointId, beforeId }: { id: string; point
         </button>
         {!inserting && (
           <>
-            <Link href={`/match/${id}/insert/${rp.point.id}`} className="btn">
+            <Link href={`/match/${id}/${list}/insert/${rp.point.id}`} className="btn">
               Insert a missed point before this one
             </Link>
             {confirmDelete ? (
