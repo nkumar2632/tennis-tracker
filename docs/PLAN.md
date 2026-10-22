@@ -17,7 +17,8 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Topic | Decision |
 |---|---|
 | Platform | PWA (not SwiftUI): offline, IndexedDB, installed to the home screen, hosted on GitHub Pages. |
-| Missed returns | Usually logged as a rally-grid error (unforced/forced) by the receiver. Return-in-play % counts an error as a missed return when it is tagged with the **Return** stroke, so the stroke strip lists Return first whenever the receiver made the error. "Unreturned serve" also counts as not in play. |
+| Missed returns (Unreturned vs Forced error) | They are the same moment seen from either side; the button decides who it's credited to. **Unreturned** (serve row) = the serve caused the miss (he lunged, framed it, couldn't handle the pace): one tap, credited to the server next to aces, and always counts as a return not in play. A routine return he missed = the returner's **Unforced error** tagged **Return**. Otherwise the returner's column is for rally errors, so "forced errors" means rally shots. A returner's error without the Return tag counts as a return that went in (the error is assumed to come later in the rally). Score, serve/return points won, break points and pressure points come out the same either way. |
+| Unreturned serves stat | Shown in the Phase 3 serve stats next to aces, for both players (collected by the Unreturned button). |
 | Matches that don't finish | "End match early" with a reason: **retired** (counts in win/loss), **stopped** (e.g. dual already decided; excluded from win/loss, stats still count), or **suspended** (resumable later). |
 | Late start | Setup takes an optional starting score (finished sets, current games, who serves next). Charting starts at the beginning of a game. Stats cover charted points only. |
 | Editing | Any past point can be changed, deleted, or a missed point inserted. Later points are re-scored and their servers re-derived. |
@@ -107,7 +108,8 @@ tests; debug UI; GitHub Pages deploy workflow; CLAUDE.md; README; this plan.
 strip, undo, point list with edit/insert/delete, auto-save, resume, end early/suspend, JSON
 backup/restore. UI tests (Testing Library + happy-dom) cover point entry, setup and the point editor.
 
-**Phase 3:** match stats (Match/Set tabs; only collected stats; stroke tables only when recorded),
+**Phase 3:** match stats (Match/Set tabs; only collected stats, including unreturned serves next to aces;
+stroke tables only when recorded),
 plain-language timeline, 1st-serve-% per game chart, PDF report (incl. match vs season averages with
 the biggest differences highlighted, and notes), Excel export (points sheet + stats sheet), share
 sheet. Check .xlsx sharing on iOS early.

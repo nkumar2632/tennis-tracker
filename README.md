@@ -26,8 +26,14 @@ picks up the new version.
   Unforced error / Forced error, under the player who hit that shot).
 - **Fault** on a first serve: the yellow 2ND SERVE banner appears. If the second serve goes in, just
   log how the point ended; if it misses, tap Double fault.
+- **Unreturned vs Forced error:** the same moment seen from either side; the button decides who
+  gets the credit. Tap **Unreturned** when the serve caused the miss (lunged, framed it, couldn't
+  handle the pace): it counts for the server, next to aces. For a routine return he missed, tap the
+  returner's **Unforced error** and tag it **Return**. Keep the returner's column otherwise for errors
+  later in the rally.
 - **Which shot?** (optional): the shot that ended the point, by the player whose button you tapped.
-  Tag a missed return as **Return** so return-in-play % counts it.
+  Tag a missed return as **Return** so return-in-play % counts it; untagged, the app assumes the
+  return went in and the error came later.
 - **Undo** steps back one tap. Tap the last-point line, or **Points**, to change, delete or insert
   any point.
 - The app saves after every tap and reopens the match if it's closed. ••• also has Suspend and End
