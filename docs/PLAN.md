@@ -24,7 +24,8 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | Editing | Any past point can be changed, deleted, or a missed point inserted. Later points are re-scored and their servers re-derived. |
 | Formats | Presets: best of 3 (7-pt tiebreak at 6-6), 2 sets + 10-pt match tiebreak, 8-game pro set (7-pt tiebreak at 8-8). No-ad is a separate toggle. Games per set, tiebreak score, tiebreak points and match tiebreak points are all adjustable. |
 | Season | No fixed season: filter by date range. Practice matches are excluded from the record and season averages by default (toggle). |
-| UTR | Opponent UTR, handedness and the son's UTR are optional and can be filled in later. **Open:** confirm how the UTR band filter should work before Phase 4. |
+| UTR | Opponent UTR, handedness and the son's UTR are optional, and can be added or changed any time, including after the match (match page → Edit match details). New matches prefill his UTR from the last match and an opponent's from past matches against them. |
+| UTR band filter (Phase 4) | Relative to his rating at the time: opponent's UTR minus his. Bands: **Lower** (more than 0.5 below), **Even** (within 0.5), **Higher** (more than 0.5 above). If his UTR is blank for a match, use his UTR from the nearest-dated match that has one. If the opponent's UTR is blank, or the son's UTR isn't recorded on any match, the match goes in **Unknown**; that group lists the matches so a UTR can be added with one tap. |
 | Backup | JSON backup/restore moved up to Phase 2. Restore replaces all data after a confirmation. |
 | Screen sleep | Not built; the owner turns off Auto-Lock when charting. |
 | 1st serve % per game chart | Keep it (Phase 3), per service game, both players. |
