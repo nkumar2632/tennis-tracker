@@ -1134,3 +1134,266 @@ textarea:focus {
   background: var(--player);
   border-radius: 2px;
 }
+
+/* ---------- Season ---------- */
+
+.season-tabs {
+  grid-template-columns: 1fr 1fr 1.35fr;
+}
+
+.season-tabs .tab {
+  white-space: nowrap;
+}
+
+.season-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.season-link-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.season-link-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.chevron {
+  font-size: 1.6rem;
+  color: var(--muted);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px 10px;
+  margin: 0 0 12px;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.filter select,
+.filter input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+.filters-reset {
+  grid-column: 1 / -1;
+  justify-self: start;
+  border: none;
+  background: none;
+  padding: 6px 0;
+  color: var(--brand);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.record {
+  text-align: center;
+}
+
+.record-big {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.record-sub {
+  margin: 4px 0 0;
+}
+
+.band-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.band-table th,
+.band-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.band-table th {
+  text-align: left;
+  font-weight: 700;
+}
+
+.band-table td {
+  text-align: right;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.band-table tr.on {
+  background: var(--surface);
+}
+
+.band-hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.has-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.has-action .match-row {
+  flex: 1;
+  min-width: 0;
+  border-bottom: none;
+}
+
+.row-action {
+  flex: none;
+  padding: 8px 12px;
+  border: 2px solid var(--brand);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.trend {
+  margin: 0 0 20px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.trend figcaption {
+  margin-bottom: 2px;
+}
+
+.trend-title {
+  font-weight: 800;
+}
+
+.trend-summary {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.avg-key {
+  display: inline-block;
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed var(--fg);
+  vertical-align: middle;
+}
+
+.trend svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.trend .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.trend .grid.zero {
+  stroke: var(--muted);
+}
+
+.trend .axis {
+  font-size: 11px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.trend .avg-line {
+  stroke: var(--fg);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.trend .trend-line {
+  fill: none;
+  stroke: var(--player);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trend .dot {
+  fill: var(--player);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+.trend .dot.on {
+  fill: var(--fg);
+}
+
+.trend .hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.trend-pick {
+  margin: 4px 0 0;
+}
+
+.h2h {
+  margin: 0 0 20px;
+}
+
+.h2h-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--fg);
+  font-size: 1.1rem;
+}
+
+.h2h-title > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.h2h-record {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.h2h-sub {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}

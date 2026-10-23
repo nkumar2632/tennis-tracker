@@ -7,7 +7,7 @@ import { ErrorBox, Sheet, TopBar } from '../components';
 import { errorMessage, useMatches, useSettings } from '../hooks';
 import { shareFile } from '../share';
 import { forgetAllMatches, whenSaved } from '../store';
-import { shortDate } from './Home';
+import { shortDate } from '../dates';
 
 const matchCount = (n: number) => `${n} ${n === 1 ? 'match' : 'matches'}`;
 

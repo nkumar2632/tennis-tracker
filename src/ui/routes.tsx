@@ -8,6 +8,7 @@ import { ChartScreen } from './screens/Chart';
 import { HomeScreen } from './screens/Home';
 import { MatchScreen } from './screens/MatchScreen';
 import { PointEditorScreen, PointsScreen } from './screens/Points';
+import { SeasonScreen } from './screens/Season';
 import { SettingsScreen } from './screens/Settings';
 import { EditMatchScreen, NewMatchScreen } from './screens/Setup';
 import { loadMatch } from './store';
@@ -20,6 +21,9 @@ export function Routes() {
         <Route path="/new">{() => <NewMatchScreen />}</Route>
         <Route path="/settings">{() => <SettingsScreen />}</Route>
         <Route path="/debug">{() => <DebugApp />}</Route>
+        <Route path="/season">{() => <SeasonScreen tab="record" />}</Route>
+        <Route path="/season/trends">{() => <SeasonScreen tab="trends" />}</Route>
+        <Route path="/season/h2h">{() => <SeasonScreen tab="h2h" />}</Route>
         <Route path="/match/:id">{(p) => <MatchScreen key={p.id} id={p.id} tab="stats" />}</Route>
         <Route path="/match/:id/timeline">{(p) => <MatchScreen key={p.id} id={p.id} tab="timeline" />}</Route>
         <Route path="/match/:id/report">{(p) => <MatchScreen key={p.id} id={p.id} tab="report" />}</Route>

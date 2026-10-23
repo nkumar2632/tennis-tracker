@@ -8,7 +8,7 @@ two ever disagree; update this file when a decision changes.
 - [x] **Phase 1:** data model, scoring engine, stats, storage, tests, debug UI, deploy pipeline
 - [x] **Phase 2:** match setup, point entry, resume, backup/restore
 - [x] **Phase 3:** per-match stats, timeline, PDF report, Excel export
-- [ ] **Phase 4:** season view, trends, head-to-head
+- [x] **Phase 4:** season view, trends, head-to-head
 
 Stop at the end of each phase so the owner can test on their iPhone.
 
@@ -39,6 +39,10 @@ Stop at the end of each phase so the owner can test on their iPhone.
 | PDF | US Letter, single column; key stats on page 1. Uses the built-in Helvetica font (no 850 kB download), which prints Western European characters only (é, ü, ñ are fine; other scripts show as "?"). |
 | Season comparison (Phase 3) | Baseline: other finished matches (completed, retired or stopped) with charted points, in the 12 months up to the match date, practice excluded. Needs at least 3. Every compared stat is a rate, so short and long matches compare fairly: aces and double faults as % of service points, winners and unforced errors as % of points played. A rate needs at least 5 chances in both the match and the season. The 3 biggest differences each way (at least 3 percentage points) are highlighted as "better/worse than usual". |
 | Excel (Phase 3) | Two sheets: **Points** (one row per point: set, game, server, serve, score before, how it ended, by whom, stroke, who won it, games and points after, break/pressure point) and **Stats** (match and each set side by side, plus strokes and notes). |
+| Season screen (Phase 4) | Home → Season, with three tabs (Record, Trends, Head-to-head) under one set of filters: dates (last 12/6/3 months, since January 1, all dates, or chosen dates; default last 12 months), events (default all but practice), surface, opponent UTR band. Filters stay set while the app is open. |
+| Record (Phase 4) | Wins and losses count completed and retired matches; stopped and unfinished ones are listed but not counted. Shows the record for the filters, the record in each UTR band (same filters, every band), and the match list with each opponent's UTR and band. Matches in Unknown have an **Add UTR** button that opens match details. |
+| Trends (Phase 4) | One chart per stat, his values only: each finished match with charted points is a dot, oldest to newest, evenly spaced; a dashed line is his average over the same matches, computed like the season comparison (percentages pooled over points, counts per match). A match with nothing to measure (e.g. no pressure points) is left out of that chart. Tap a match's column to see its value and open it. |
+| Head-to-head (Phase 4) | Opponents he played more than once within the filters (names matched ignoring case and spacing), most matches first, with the record and every match. |
 | Timeline (Phase 3) | Chronological on the match page; the live Points list (from point entry) is the same view, newest first. Score after each point is server first; games scores are the son first. |
 
 ## Tech stack
@@ -117,9 +121,10 @@ serves; stroke table when strokes were recorded; 1st-serve-% chart by service ga
 language, tap to edit), and Report (season comparison on screen; PDF and Excel built when the tab
 opens and shared through the share sheet, or downloaded where sharing files isn't supported).
 
-**Phase 4:** match list (result, opponent, opponent UTR), win/loss record with filters (UTR band,
-event type, surface, date range), trend charts (1st serve %, 2nd serve points won, DFs, UEs,
-W−UE, pressure-point %), head-to-head.
+**Phase 4 (done):** Season screen from Home: match list (result, opponent, opponent UTR and band,
+Add UTR for unknown), win/loss record with filters (UTR band, event type, surface, date range) and
+by UTR band, trend charts (1st serve %, 2nd serve points won, DFs, UEs, W−UE, pressure-point %),
+head-to-head. Logic in `src/domain/seasonView.ts`; screen tests in `src/ui/screens/Season.test.tsx`.
 
 ## iOS notes
 
