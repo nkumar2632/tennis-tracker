@@ -53,6 +53,21 @@ Tap a match on Home. Its page has three tabs:
 
 Add or fix details (UTRs, notes, event) any time from ••• → Edit match details.
 
+## Season
+
+Tap **Season** on Home. The filters at the top (dates, events, surface, opponent UTR) apply to all
+three tabs and stay set while the app is open. By default: the last 12 months, practice left out.
+
+- **Record:** wins and losses (stopped and unfinished matches are listed but not counted), the record
+  against lower-rated, even and higher-rated opponents, and every match with the opponent's UTR.
+  The band compares the opponent's UTR with his at the time (within 0.5 is even); if his UTR is blank
+  on a match, his UTR from the nearest-dated match is used. Matches with a missing UTR show
+  **Add UTR**.
+- **Trends:** 1st serve %, points won on 2nd serve, double faults, unforced errors, winners minus
+  unforced errors, and pressure points won, one dot per finished match, with his average as a dashed
+  line. Tap a dot to see the match and open it.
+- **Head-to-head:** everyone he has played more than once, with the record and each match.
+
 ## Run locally
 
 Requires Node 22.12 or newer.
@@ -94,7 +109,7 @@ You can also redeploy by hand from the **Actions** tab ("Test and deploy" → "R
 ```
 src/domain/    scoring engine, point log, stats: pure TypeScript, no browser APIs
 src/storage/   IndexedDB (Dexie) database and save/load functions
-src/ui/        React app: screens/, routes, settings, the in-memory match store
+src/ui/        React app: screens/, match/ (match page tabs), season/ (season tabs), routes, store
 src/ui/DebugApp.tsx  Settings → Testing tools (engine debug screen, sample matches)
 public/        app icons
 ```

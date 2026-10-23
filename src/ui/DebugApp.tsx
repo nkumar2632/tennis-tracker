@@ -34,6 +34,7 @@ import { db } from '../storage/db';
 import { deleteMatch, getMatch, listMatches, requestPersistentStorage } from '../storage/repo';
 import { commitMatch, forgetMatch } from './store';
 import './debug.css';
+import { today } from './dates';
 
 const NAMES: BySide<string> = { player: 'Player', opponent: 'Opponent' };
 const SHORT: BySide<string> = { player: 'P', opponent: 'O' };
@@ -78,10 +79,6 @@ function strokeRows(): [string, (s: SideStats) => string][] {
   ]);
 }
 
-function today(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 function NewMatchForm({ onCreate }: { onCreate: (format: MatchFormat, firstServer: Side, sample: boolean) => void }) {
   const [preset, setPreset] = useState<FormatPresetKey>('twoSetsMatchTiebreak');

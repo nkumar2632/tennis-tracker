@@ -14,11 +14,8 @@ import { setSetting, type SetupDefaults } from '../../storage/repo';
 import { Segmented, TopBar } from '../components';
 import { errorMessage, namesFor, useMatchEditor, useMatches, useSettings } from '../hooks';
 import { commitMatch } from '../store';
+import { today } from '../dates';
 
-function today(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 /** Draft of the form. Numbers are kept as text while typing. */
 interface Draft {
