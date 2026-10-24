@@ -2,7 +2,8 @@
 
 **Read [SPEC.md](SPEC.md) first.** It is the product spec and the final word on what to build.
 Then read [docs/PLAN.md](docs/PLAN.md): the approved stack, data model, the owner's decisions on open
-questions, and which phase is in progress.
+questions, and which phase is in progress. [docs/HISTORY.md](docs/HISTORY.md) explains how the
+project got here and how to make common changes.
 
 ## Rules
 
