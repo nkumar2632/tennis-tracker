@@ -17,6 +17,8 @@ const playerCount = (n: number) => `${n} ${n === 1 ? 'player' : 'players'}`;
 /** A player's name, renamed as you type (a blank name isn't saved). */
 function PlayerRow({ player, matches, onDelete }: { player: Player; matches: number; onDelete: () => void }) {
   const [name, setName] = useState(player.name);
+  // The name last saved from this box: `player` can lag a keystroke behind while the save lands.
+  const saved = useRef(player.name);
   return (
     <li className="player-row">
       <label className="field">
@@ -28,9 +30,12 @@ function PlayerRow({ player, matches, onDelete }: { player: Player; matches: num
           autoComplete="off"
           onChange={(e) => {
             setName(e.target.value);
-            if (e.target.value.trim()) void savePlayer(db, { ...player, name: e.target.value.trim() });
+            const trimmed = e.target.value.trim();
+            if (!trimmed) return;
+            saved.current = trimmed;
+            void savePlayer(db, { ...player, name: trimmed });
           }}
-          onBlur={() => setName((n) => n.trim() || player.name)}
+          onBlur={() => setName((n) => n.trim() || saved.current)}
         />
       </label>
       <button type="button" className="btn btn-plain player-delete" onClick={onDelete} aria-label={`Delete ${player.name}`}>
