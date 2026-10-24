@@ -23,7 +23,7 @@ import { SIDES } from '../../domain/types';
 import { db } from '../../storage/db';
 import { setSetting } from '../../storage/repo';
 import { Sheet } from '../components';
-import { namesFor, useMatchEditor, useSettings } from '../hooks';
+import { namesFor, useMatchEditor, usePlayers } from '../hooks';
 
 /** Taps closer together than this are treated as one accidental double tap. */
 const TAP_GUARD_MS = 300;
@@ -82,7 +82,7 @@ function lastPointText(rp: ReplayedPoint, names: BySide<string>): string {
 
 export function ChartScreen({ id }: { id: string }) {
   const { match, error, setError, apply } = useMatchEditor(id);
-  const settings = useSettings();
+  const players = usePlayers();
   const [, navigate] = useLocation();
   const [menu, setMenu] = useState<'none' | 'main' | 'end'>('none');
   const [toast, setToast] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export function ChartScreen({ id }: { id: string }) {
     );
   }
 
-  const names = namesFor(settings, match);
+  const names = namesFor(players, match);
   const r = replay(match);
   const state = r.final;
   const over = state.winner !== null;

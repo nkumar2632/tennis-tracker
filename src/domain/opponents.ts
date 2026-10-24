@@ -15,7 +15,7 @@ export function opponentKey(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
-/** Everyone he has played, most recent first, for autocomplete and head-to-head. */
+/** Everyone played (by any player), most recent first, for autocomplete and UTR prefill. */
 export function pastOpponents(matches: readonly Match[]): OpponentInfo[] {
   const newestFirst = [...matches].sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt - a.updatedAt);
   const byKey = new Map<string, OpponentInfo>();

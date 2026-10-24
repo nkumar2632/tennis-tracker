@@ -55,7 +55,7 @@ describe('season baseline', () => {
     expect(monthsBefore('2026-01-15', 2)).toBe('2025-11-15');
   });
 
-  it('uses other finished, charted, non-practice matches from the 12 months up to the match', () => {
+  it("uses the same player's other finished, charted, non-practice matches from the 12 months up to the match", () => {
     const current = { ...finished('gp', 'current'), date: '2026-10-01' };
     const all: Match[] = [
       current,
@@ -67,6 +67,7 @@ describe('season baseline', () => {
       { ...play(newMatch(), 'gp'), id: 'in-progress', date: '2026-06-01' },
       { ...finished('', 'empty'), date: '2026-06-01' },
       { ...finished('gp', 'retired'), date: '2026-06-01', status: 'retired', retiredSide: 'opponent' },
+      { ...finished('gp', 'other-player'), date: '2026-06-01', playerId: 'p2' },
     ];
     expect(seasonBaseline(all, current).map((m) => m.id).sort()).toEqual(['in-window', 'retired', 'same-day']);
     expect(seasonBaseline(all, current, { includePractice: true }).map((m) => m.id)).toContain('practice');

@@ -9,7 +9,7 @@ import { replay } from '../../domain/replay';
 import { db } from '../../storage/db';
 import { deleteMatch, getSetting, setSetting } from '../../storage/repo';
 import { ErrorBox, Sheet, TopBar } from '../components';
-import { namesFor, useMatchEditor, useMatches, useSettings } from '../hooks';
+import { namesFor, useMatchEditor, useMatches, usePlayers } from '../hooks';
 import { ReportView } from '../match/ReportView';
 import { StatsView } from '../match/StatsView';
 import { Timeline } from '../match/Timeline';
@@ -25,14 +25,13 @@ const TABS: [MatchTab, string, string][] = [
 
 export function MatchScreen({ id, tab }: { id: string; tab: MatchTab }) {
   const { match, apply, error } = useMatchEditor(id);
-  const settings = useSettings();
+  const players = usePlayers();
   const matches = useMatches();
   const [, navigate] = useLocation();
   const [sheet, setSheet] = useState<'none' | 'menu' | 'delete'>('none');
   // Stable across re-renders so the report (and its files) is only rebuilt when a name changes.
-  const playerName = settings.playerName;
-  const opponentName = match?.opponentName ?? '';
-  const names = useMemo(() => namesFor({ playerName }, { opponentName }), [playerName, opponentName]);
+  const latest = namesFor(players, match);
+  const names = useMemo(() => latest, [latest.player, latest.opponent]);
   const r = useMemo(() => (match ? replay(match) : null), [match]);
 
   if (!match || !r) {

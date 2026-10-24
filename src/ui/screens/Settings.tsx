@@ -1,20 +1,118 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { backupFileName, makeBackup, parseBackup, type Backup } from '../../domain/backup';
+import { matchesOf, newPlayer } from '../../domain/players';
+import type { Match, Player } from '../../domain/types';
 import { db } from '../../storage/db';
-import { BACKED_UP_SETTINGS, replaceAllData, requestPersistentStorage, setSetting } from '../../storage/repo';
+import { BACKED_UP_SETTINGS, deletePlayer, replaceAllData, requestPersistentStorage, savePlayer } from '../../storage/repo';
 import { ErrorBox, Sheet, TopBar } from '../components';
-import { errorMessage, useMatches, useSettings } from '../hooks';
+import { errorMessage, useMatches, usePlayers, useSettings } from '../hooks';
 import { shareFile } from '../share';
-import { forgetAllMatches, whenSaved } from '../store';
+import { forgetAllMatches, forgetMatch, whenSaved } from '../store';
 import { shortDate } from '../dates';
 
 const matchCount = (n: number) => `${n} ${n === 1 ? 'match' : 'matches'}`;
+const playerCount = (n: number) => `${n} ${n === 1 ? 'player' : 'players'}`;
+
+/** A player's name, renamed as you type (a blank name isn't saved). */
+function PlayerRow({ player, matches, onDelete }: { player: Player; matches: number; onDelete: () => void }) {
+  const [name, setName] = useState(player.name);
+  return (
+    <li className="player-row">
+      <label className="field">
+        <span className="field-label">
+          Player <span className="muted">· {matchCount(matches)}</span>
+        </span>
+        <input
+          value={name}
+          autoComplete="off"
+          onChange={(e) => {
+            setName(e.target.value);
+            if (e.target.value.trim()) void savePlayer(db, { ...player, name: e.target.value.trim() });
+          }}
+          onBlur={() => setName((n) => n.trim() || player.name)}
+        />
+      </label>
+      <button type="button" className="btn btn-plain player-delete" onClick={onDelete} aria-label={`Delete ${player.name}`}>
+        Delete
+      </button>
+    </li>
+  );
+}
+
+function PlayersSection({ matches }: { matches: Match[] }) {
+  const players = usePlayers();
+  const [adding, setAdding] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<Player | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const add = async (name: string) => {
+    setAdding(null);
+    await savePlayer(db, newPlayer(name));
+  };
+  const remove = async (player: Player) => {
+    setDeleting(null);
+    try {
+      await whenSaved();
+      await deletePlayer(db, player.id);
+      for (const m of matchesOf(matches, player.id)) forgetMatch(m.id);
+    } catch (e) {
+      setError(`Couldn't delete: ${errorMessage(e)}`);
+    }
+  };
+  const deletingCount = deleting ? matchesOf(matches, deleting.id).length : 0;
+
+  return (
+    <>
+      <h2 className="section-title">Players</h2>
+      <ul className="player-list">
+        {players.map((p) => (
+          <PlayerRow key={p.id} player={p} matches={matchesOf(matches, p.id).length} onDelete={() => setDeleting(p)} />
+        ))}
+      </ul>
+      <button type="button" className="btn" onClick={() => setAdding('')}>
+        + Add a player
+      </button>
+      <ErrorBox message={error} />
+
+      {adding !== null && (
+        <Sheet title="Add a player" onClose={() => setAdding(null)}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (adding.trim()) void add(adding);
+            }}
+          >
+            <label className="field">
+              <span className="field-label">Name</span>
+              <input value={adding} autoComplete="off" autoFocus onChange={(e) => setAdding(e.target.value)} />
+            </label>
+            <button type="submit" className="btn btn-primary" disabled={!adding.trim()}>
+              Add player
+            </button>
+          </form>
+        </Sheet>
+      )}
+      {deleting && (
+        <Sheet title={`Delete ${deleting.name}?`} onClose={() => setDeleting(null)}>
+          <p>
+            {deletingCount === 0
+              ? `${deleting.name} has no matches.`
+              : `This also deletes ${deleting.name}'s ${matchCount(deletingCount)} for good. Back up first if you might want them.`}
+          </p>
+          <button type="button" className="btn btn-danger" onClick={() => void remove(deleting)}>
+            Delete {deleting.name}
+          </button>
+        </Sheet>
+      )}
+    </>
+  );
+}
 
 export function SettingsScreen() {
   const settings = useSettings();
+  const players = usePlayers();
   const matches = useMatches();
-  const [name, setName] = useState<string | null>(null);
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,13 +124,12 @@ export function SettingsScreen() {
   }, []);
 
   if (!matches) return <div className="screen" />;
-  const shownName = name ?? settings.playerName;
 
   // Built from data already on screen so the share sheet opens straight from the tap.
   const backUp = async () => {
     setError(null);
     const kept = Object.fromEntries(BACKED_UP_SETTINGS.map((k) => [k, settings[k]]));
-    const json = JSON.stringify(makeBackup(matches, kept), null, 1);
+    const json = JSON.stringify(makeBackup(players, matches, kept), null, 1);
     const file = new File([json], backupFileName(), { type: 'application/json' });
     try {
       const result = await shareFile(file);
@@ -55,10 +152,9 @@ export function SettingsScreen() {
     setPending(null);
     try {
       await whenSaved();
-      await replaceAllData(db, backup.matches, backup.settings);
+      await replaceAllData(db, backup);
       forgetAllMatches();
-      setName(null);
-      setMessage(`Restored ${matchCount(backup.matches.length)}.`);
+      setMessage(`Restored ${matchCount(backup.matches.length)} (${playerCount(backup.players.length)}).`);
     } catch (e) {
       setError(`Restore failed; nothing was changed. ${errorMessage(e)}`);
     }
@@ -68,17 +164,7 @@ export function SettingsScreen() {
     <div className="screen">
       <TopBar back="/" backLabel="Home" title="Settings" />
 
-      <label className="field">
-        <span className="field-label">Player&apos;s name</span>
-        <input
-          value={shownName}
-          autoComplete="off"
-          onChange={(e) => {
-            setName(e.target.value);
-            void setSetting(db, 'playerName', e.target.value.trim());
-          }}
-        />
-      </label>
+      <PlayersSection matches={matches} />
 
       <h2 className="section-title">Backup</h2>
       <p className="muted">
@@ -124,9 +210,9 @@ export function SettingsScreen() {
       {pending && (
         <Sheet title="Replace everything?" onClose={() => setPending(null)}>
           <p>
-            This replaces everything on this phone ({matchCount(matches.length)}) with the{' '}
-            {matchCount(pending.matches.length)} in the backup{pending.exportedAt ? ` from ${shortDate(pending.exportedAt.slice(0, 10))}` : ''}. This can&apos;t be
-            undone.
+            This replaces everything on this phone ({playerCount(players.length)}, {matchCount(matches.length)}) with the
+            backup{pending.exportedAt ? ` from ${shortDate(pending.exportedAt.slice(0, 10))}` : ''} ({playerCount(pending.players.length)},{' '}
+            {matchCount(pending.matches.length)}). This can&apos;t be undone.
           </p>
           <button type="button" className="btn btn-danger" onClick={() => void restore(pending)}>
             Replace with backup

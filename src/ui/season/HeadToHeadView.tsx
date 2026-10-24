@@ -1,10 +1,10 @@
-/** Opponents he has played more than once in the filtered matches, with the record and each match. */
+/** Opponents the player has played more than once in the filtered matches, with the record and each match. */
 import { headToHead } from '../../domain/seasonView';
 import type { Match } from '../../domain/types';
 import { MatchRow } from '../MatchRow';
 import { recordText } from './RecordView';
 
-export function HeadToHeadView({ matches, playerName }: { matches: readonly Match[]; playerName: string }) {
+export function HeadToHeadView({ matches }: { matches: readonly Match[] }) {
   const opponents = headToHead(matches);
   if (opponents.length === 0) return <p className="muted">No opponent played more than once in these matches.</p>;
   return (
@@ -24,7 +24,7 @@ export function HeadToHeadView({ matches, playerName }: { matches: readonly Matc
           )}
           <ul className="match-list">
             {h.matches.map((m) => (
-              <MatchRow key={m.id} match={m} playerName={playerName} />
+              <MatchRow key={m.id} match={m} />
             ))}
           </ul>
         </section>

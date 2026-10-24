@@ -25,8 +25,8 @@ export interface SeasonOptions {
 }
 
 /**
- * The season baseline for a match: other finished, charted matches in the `months` months up to
- * and including its date. Practice matches are left out unless asked for.
+ * The season baseline for a match: the same player's other finished, charted matches in the
+ * `months` months up to and including its date. Practice matches are left out unless asked for.
  */
 export function seasonBaseline(all: readonly Match[], current: Match, options: SeasonOptions = {}): Match[] {
   const { months = 12, includePractice = false } = options;
@@ -34,6 +34,7 @@ export function seasonBaseline(all: readonly Match[], current: Match, options: S
   return all.filter(
     (m) =>
       m.id !== current.id &&
+      m.playerId === current.playerId &&
       isFinished(m) &&
       m.points.length > 0 &&
       (includePractice || m.eventType !== 'practice') &&

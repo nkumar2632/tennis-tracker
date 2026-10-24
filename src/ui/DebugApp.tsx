@@ -17,6 +17,7 @@ import {
   type PointInput,
 } from '../domain/log';
 import { createMatch, matchOutcome } from '../domain/match';
+import { newPlayer } from '../domain/players';
 import { replay } from '../domain/replay';
 import { pointScoreLabel, serverOf, setScoreLine } from '../domain/scoring';
 import { simulateMatch } from '../domain/simulate';
@@ -31,7 +32,8 @@ import {
 import type { BySide, Match, MatchFormat, Side, Stroke } from '../domain/types';
 import { STROKES, isServeEnding } from '../domain/types';
 import { db } from '../storage/db';
-import { deleteMatch, getMatch, listMatches, requestPersistentStorage } from '../storage/repo';
+import { deleteMatch, getMatch, listMatches, requestPersistentStorage, savePlayer, setSetting } from '../storage/repo';
+import { useCurrentPlayer } from './hooks';
 import { commitMatch, forgetMatch } from './store';
 import './debug.css';
 import { today } from './dates';
@@ -145,6 +147,7 @@ function NewMatchForm({ onCreate }: { onCreate: (format: MatchFormat, firstServe
 }
 
 export function DebugApp() {
+  const player = useCurrentPlayer();
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scope, setScope] = useState<number | undefined>(undefined);
@@ -170,9 +173,18 @@ export function DebugApp() {
     }
   };
 
-  const create = (format: MatchFormat, firstServer: Side, sample: boolean) => {
+  const create = async (format: MatchFormat, firstServer: Side, sample: boolean) => {
+    // Test matches belong to the current player (one is added if there are none yet).
+    let playerId = player?.id;
+    if (!playerId) {
+      const added = newPlayer('Player');
+      await savePlayer(db, added);
+      await setSetting(db, 'currentPlayerId', added.id);
+      playerId = added.id;
+    }
     try {
       let m = createMatch({
+        playerId,
         date: today(),
         eventName: sample ? 'Sample match' : 'Debug match',
         eventType: 'practice',

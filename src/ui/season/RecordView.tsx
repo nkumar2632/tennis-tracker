@@ -2,18 +2,17 @@
 import { Link } from 'wouter';
 import {
   UTR_BANDS,
-  UTR_BAND_HINTS,
   UTR_BAND_LABELS,
   filterMatches,
   playerUtrFor,
   utrBand,
+  utrBandHint,
   winLoss,
   winPct,
   type SeasonFilter,
   type WinLoss,
 } from '../../domain/seasonView';
 import type { Match } from '../../domain/types';
-import { namesFor } from '../hooks';
 import { MatchRow } from '../MatchRow';
 
 export function recordText(r: WinLoss): string {
@@ -27,7 +26,7 @@ function UtrLine({ match, all, playerName }: { match: Match; all: readonly Match
   if (band === 'unknown' && playerUtrFor(match, all) === undefined) {
     return (
       <>
-        {theirs} · {namesFor({ playerName }, match).player}&apos;s UTR not entered
+        {theirs} · {playerName}&apos;s UTR not entered
       </>
     );
   }
@@ -82,7 +81,7 @@ export function RecordView({
               <tr key={band} className={filter.band === band ? 'on' : undefined}>
                 <th scope="row">
                   {UTR_BAND_LABELS[band]}
-                  <span className="band-hint">{UTR_BAND_HINTS[band]}</span>
+                  <span className="band-hint">{utrBandHint(band, playerName)}</span>
                 </th>
                 <td>{recordText(r)}</td>
               </tr>
@@ -100,7 +99,6 @@ export function RecordView({
             <MatchRow
               key={m.id}
               match={m}
-              playerName={playerName}
               extra={<UtrLine match={m} all={all} playerName={playerName} />}
               action={
                 utrBand(m, all) === 'unknown' ? (

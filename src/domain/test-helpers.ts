@@ -28,6 +28,7 @@ const STROKE_CODES: Record<string, Stroke> = {
 export function newMatch(format: MatchFormat = FORMAT_PRESETS.bestOf3, overrides: Partial<MatchSetup> = {}): Match {
   return createMatch(
     {
+      playerId: 'p1',
       date: '2026-10-01',
       eventName: 'Test Open',
       eventType: 'usta',

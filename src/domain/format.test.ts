@@ -69,6 +69,7 @@ describe('validateStartingScore', () => {
 
 describe('createMatch', () => {
   const setup = {
+    playerId: 'p1',
     date: '2026-10-01',
     eventName: 'Fall Open',
     eventType: 'usta' as const,

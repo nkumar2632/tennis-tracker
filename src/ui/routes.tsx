@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { db } from '../storage/db';
-import { getSetting, requestPersistentStorage } from '../storage/repo';
+import { getSetting, requestPersistentStorage, setSetting } from '../storage/repo';
 import { DebugApp } from './DebugApp';
 import { SettingsGate } from './hooks';
 import { ChartScreen } from './screens/Chart';
@@ -53,7 +53,9 @@ export function useResumeOnLaunch() {
     void (async () => {
       const id = await getSetting(db, 'activeMatchId');
       const match = id ? await loadMatch(id) : undefined;
-      if (match?.status === 'in_progress') navigate(`/match/${match.id}/chart`, { replace: true });
+      if (match?.status !== 'in_progress') return;
+      await setSetting(db, 'currentPlayerId', match.playerId);
+      navigate(`/match/${match.id}/chart`, { replace: true });
     })();
   }, []); // Only on launch.
 }
