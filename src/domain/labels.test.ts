@@ -27,6 +27,17 @@ describe('formatSummary', () => {
       'Best of 3 sets · 7-pt tiebreak at 6-6 · 10-pt match tiebreak for the 3rd set · no-ad',
     );
     expect(formatSummary(FORMAT_PRESETS.proSet8)).toBe('8-game pro set · 7-pt tiebreak at 8-8');
+    expect(formatSummary(FORMAT_PRESETS.fast4)).toBe(
+      'Fast4: best of 3 sets to 4 games · 5-pt tiebreak at 3-3, deciding point at 4-4 · 10-pt match tiebreak for the 3rd set · no-ad',
+    );
+  });
+
+  it('describes adjusted formats', () => {
+    expect(formatSummary({ ...FORMAT_PRESETS.bestOf3, gamesPerSet: 4, tiebreakAt: 4 })).toBe('Best of 3 sets to 4 games · 7-pt tiebreak at 4-4');
+    // The UK version of Fast4: a 7-point tiebreak and a full third set.
+    expect(formatSummary({ ...FORMAT_PRESETS.fast4, tiebreakPoints: 7, tiebreakSuddenDeath: false, finalSetMatchTiebreak: false })).toBe(
+      'Fast4: best of 3 sets to 4 games · 7-pt tiebreak at 3-3 · no-ad',
+    );
   });
 });
 

@@ -70,8 +70,13 @@ export interface MatchFormat {
   gamesPerSet: number;
   /** A set tiebreak is played at this many games all, e.g. 6 (6-6) or 8 (8-8). */
   tiebreakAt: number;
-  /** Points needed to win a set tiebreak (win by 2), usually 7. */
+  /** Points needed to win a set tiebreak (win by 2 unless `tiebreakSuddenDeath`), usually 7. */
   tiebreakPoints: number;
+  /**
+   * Set tiebreaks end on one deciding point at (tiebreakPoints - 1) all instead of needing a 2-point
+   * lead, e.g. Fast4: first to 5, next point wins at 4-4. Missing (false) on older matches.
+   */
+  tiebreakSuddenDeath?: boolean;
   /** Deciding set replaced by a match tiebreak. Only meaningful when bestOf is 3. */
   finalSetMatchTiebreak: boolean;
   /** Points needed to win a match tiebreak (win by 2), usually 10. */

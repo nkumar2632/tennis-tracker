@@ -141,6 +141,7 @@ function presetOf(f: MatchFormat): FormatPresetKey | undefined {
       p.gamesPerSet === f.gamesPerSet &&
       p.tiebreakAt === f.tiebreakAt &&
       p.tiebreakPoints === f.tiebreakPoints &&
+      !!(p as MatchFormat).tiebreakSuddenDeath === !!f.tiebreakSuddenDeath &&
       p.finalSetMatchTiebreak === f.finalSetMatchTiebreak &&
       (!p.finalSetMatchTiebreak || p.matchTiebreakPoints === f.matchTiebreakPoints)
     );
@@ -175,7 +176,8 @@ function FormatPicker({ format, onChange }: { format: MatchFormat; onChange: (f:
             role="radio"
             aria-checked={preset === k}
             className={preset === k ? 'seg on' : 'seg'}
-            onClick={() => onChange({ ...FORMAT_PRESETS[k], noAd: format.noAd })}
+            // No-ad is part of Fast4; the other presets keep the toggle as set (off after leaving Fast4).
+            onClick={() => onChange({ ...FORMAT_PRESETS[k], noAd: k === 'fast4' || (preset !== 'fast4' && format.noAd) })}
           >
             {FORMAT_PRESET_LABELS[k]}
           </button>
@@ -199,6 +201,14 @@ function FormatPicker({ format, onChange }: { format: MatchFormat; onChange: (f:
         <NumberField label="Games to win a set" value={format.gamesPerSet} onChange={(n) => onChange({ ...format, gamesPerSet: n })} />
         <NumberField label="Set tiebreak at (games all)" value={format.tiebreakAt} onChange={(n) => onChange({ ...format, tiebreakAt: n })} />
         <NumberField label="Tiebreak points" value={format.tiebreakPoints} onChange={(n) => onChange({ ...format, tiebreakPoints: n })} />
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={!!format.tiebreakSuddenDeath}
+            onChange={(e) => onChange({ ...format, tiebreakSuddenDeath: e.target.checked })}
+          />
+          Tiebreak decided by one point at {Number.isFinite(format.tiebreakPoints) ? `${format.tiebreakPoints - 1}-${format.tiebreakPoints - 1}` : 'the last point'}
+        </label>
         {format.bestOf === 3 && (
           <label className="check">
             <input

@@ -1,4 +1,5 @@
 /** Plain-language wording, so the timeline never needs codes like "1:FOR". */
+import { isFast4 } from './format';
 import type { GameSummary, Replay, ReplayedPoint } from './replay';
 import { setScoreLine, type ScoreState } from './scoring';
 import type { BySide, Ending, EventType, Match, MatchFormat, Side, Stroke, Surface } from './types';
@@ -56,9 +57,11 @@ export function strokeChoices(rp: Pick<ReplayedPoint, 'point' | 'endedBy' | 'rec
 /** e.g. "Best of 3 sets · 7-pt tiebreak at 6-6 · 10-pt match tiebreak for the 3rd set · no-ad". */
 export function formatSummary(f: MatchFormat): string {
   const parts: string[] = [];
-  if (f.bestOf === 1) parts.push(f.gamesPerSet === 8 ? '8-game pro set' : `One ${f.gamesPerSet}-game set`);
-  else parts.push(f.gamesPerSet === 6 ? 'Best of 3 sets' : `Best of 3 ${f.gamesPerSet}-game sets`);
-  parts.push(`${f.tiebreakPoints}-pt tiebreak at ${f.tiebreakAt}-${f.tiebreakAt}`);
+  if (isFast4(f)) parts.push('Fast4: best of 3 sets to 4 games');
+  else if (f.bestOf === 1) parts.push(f.gamesPerSet === 8 ? '8-game pro set' : `One ${f.gamesPerSet}-game set`);
+  else parts.push(f.gamesPerSet === 6 ? 'Best of 3 sets' : `Best of 3 sets to ${f.gamesPerSet} games`);
+  const decider = f.tiebreakSuddenDeath ? `, deciding point at ${f.tiebreakPoints - 1}-${f.tiebreakPoints - 1}` : '';
+  parts.push(`${f.tiebreakPoints}-pt tiebreak at ${f.tiebreakAt}-${f.tiebreakAt}${decider}`);
   if (f.bestOf === 3 && f.finalSetMatchTiebreak) parts.push(`${f.matchTiebreakPoints}-pt match tiebreak for the 3rd set`);
   if (f.noAd) parts.push('no-ad');
   return parts.join(' · ');

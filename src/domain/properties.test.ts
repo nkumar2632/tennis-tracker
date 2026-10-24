@@ -105,8 +105,13 @@ describe('scoring invariants', () => {
         r.games.forEach((game, i) => {
           if (i > 0) expect(game.server).toBe(otherSide(r.games[i - 1]!.server));
           game.pointIndices.forEach((pi, k) => {
-            const server = r.points[pi]!.server;
+            const { server, before } = r.points[pi]!;
+            const last = m.format.tiebreakPoints - 1;
+            // Fast4: the deciding point at 4-4 is served by the player who received first.
+            const decider =
+              game.kind === 'tiebreak' && !!m.format.tiebreakSuddenDeath && before.points.player === last && before.points.opponent === last;
             if (game.kind === 'game') expect(server).toBe(game.server);
+            else if (decider) expect(server).toBe(otherSide(game.server));
             else expect(server).toBe(Math.floor((k + 1) / 2) % 2 === 0 ? game.server : otherSide(game.server));
           });
         });

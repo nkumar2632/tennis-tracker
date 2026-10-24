@@ -1,6 +1,6 @@
 # Tennis Tracker: project history and build record
 
-*Last updated October 24, 2026, after Phase 5.*
+*Last updated October 24, 2026, after Phase 5 and the Fast4 format.*
 
 I built Tennis Tracker to chart my son's junior tennis matches point by point from the stands. This
 document records why I built it, what I set out to do, the decisions I made, and how it came
@@ -101,6 +101,8 @@ Every decision, including later ones, is recorded in the Decisions table in [PLA
 | Oct 22 | **Phase 3:** match stats, timeline, PDF report, Excel export | [#3](https://github.com/nkumar2632/tennis-tracker/pull/3) |
 | Oct 23 | **Phase 4:** season view with record, trends and head-to-head | [#4](https://github.com/nkumar2632/tennis-tracker/pull/4) |
 | Oct 23 | **Phase 5:** several players | [#5](https://github.com/nkumar2632/tennis-tracker/pull/5) |
+| Oct 24 | Project history and a small fix | [#6](https://github.com/nkumar2632/tennis-tracker/pull/6) |
+| Oct 24 | Fast4 format | |
 
 ## 6. Phase by phase
 
@@ -185,6 +187,18 @@ points carried over, and the live match reopened where it left off. Older backup
 
 A small fix followed on October 24: clearing a player's name right after renaming them could briefly
 restore the previous name.
+
+### After Phase 5: Fast4 scoring
+
+UTR events often use Fast4, so I added it as a format choice (October 24): best of 3 sets to 4
+games, a 5-point tiebreak at 3-3 decided by a single point at 4-4, no-ad games, and a 10-point match
+tiebreak instead of a third set. Some events use a 7-point tiebreak or a full third set, so every
+part stays adjustable. The scoring
+engine gained one option for this, a tiebreak deciding point instead of a 2-point lead, which can
+also be turned on for any other format under Adjust. Sources differ on who serves the 4-4 point; the
+app follows Tennis Australia club rules (the player who received first in the tiebreak) and keeps
+the usual tiebreak rotation for the other points. If an event does it differently, that's the one
+rule to revisit.
 
 ## 7. Practical notes
 

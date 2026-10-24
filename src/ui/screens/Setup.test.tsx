@@ -63,6 +63,31 @@ describe('new match', () => {
     expect(screen.getByRole('radio', { name: 'Clay' }).getAttribute('aria-checked')).toBe('true');
   });
 
+  it('offers Fast4, which turns on no-ad, a one-point decider at 4-4 and a third-set match tiebreak', async () => {
+    const view = renderAt('/new');
+    await screen.findByText('Who serves first?');
+    const noAd = () => (screen.getByLabelText(/No-ad/) as HTMLInputElement).checked;
+    const decider = () => (screen.getByLabelText(/Tiebreak decided by one point/) as HTMLInputElement).checked;
+    expect(noAd()).toBe(false);
+    radio('Fast4 (sets to 4)');
+    expect(noAd()).toBe(true);
+    expect(decider()).toBe(true);
+    expect(
+      screen.getByText(/Adjust: Fast4: best of 3 sets to 4 games · 5-pt tiebreak at 3-3, deciding point at 4-4 · 10-pt match tiebreak for the 3rd set · no-ad/),
+    ).toBeTruthy();
+    // Back to a regular format: no-ad and the decider go off again.
+    radio('Best of 3 sets');
+    expect(noAd()).toBe(false);
+    expect(decider()).toBe(false);
+    radio('Fast4 (sets to 4)');
+    type('Opponent', 'Lee');
+    radio('Sam');
+    tap('Start match');
+    await waitFor(() => expect(view.path()).toMatch(/^\/match\/.+\/chart$/));
+    const [m] = await listMatches(db);
+    expect(m!.format).toEqual(FORMAT_PRESETS.fast4);
+  });
+
   it("fills in a past opponent's UTR and hand", async () => {
     await seed({ ...newMatch(FORMAT_PRESETS.bestOf3, { opponentName: 'Lee Park', opponentUtr: 7.2, opponentHand: 'left' }), id: 'old' });
     renderAt('/new');
