@@ -5,6 +5,7 @@ for iPhone. All data stays on the phone (IndexedDB); there are no accounts and n
 
 - Product spec: [SPEC.md](SPEC.md)
 - Approved plan, decisions and phase status: [docs/PLAN.md](docs/PLAN.md)
+- How the project started and was built, phase by phase: [docs/HISTORY.md](docs/HISTORY.md)
 - Screenshots of the app being replaced: [reference/](reference/)
 
 ## Install on your iPhone
