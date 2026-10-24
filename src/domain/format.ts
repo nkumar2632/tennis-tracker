@@ -29,6 +29,17 @@ export const FORMAT_PRESETS = {
     matchTiebreakPoints: 10,
     noAd: false,
   },
+  /** Fast4 (used at UTR events): sets to 4, 5-point tiebreak at 3-3 decided by one point at 4-4, no-ad. */
+  fast4: {
+    bestOf: 3,
+    gamesPerSet: 4,
+    tiebreakAt: 3,
+    tiebreakPoints: 5,
+    tiebreakSuddenDeath: true,
+    finalSetMatchTiebreak: false,
+    matchTiebreakPoints: 10,
+    noAd: true,
+  },
 } as const satisfies Record<string, MatchFormat>;
 
 export type FormatPresetKey = keyof typeof FORMAT_PRESETS;
@@ -37,7 +48,21 @@ export const FORMAT_PRESET_LABELS: Record<FormatPresetKey, string> = {
   bestOf3: 'Best of 3 sets',
   twoSetsMatchTiebreak: '2 sets + match tiebreak',
   proSet8: '8-game pro set',
+  fast4: 'Fast4 (sets to 4)',
 };
+
+/** Exactly the Fast4 rules (whatever the no-ad setting, which is shown separately). */
+export function isFast4(f: MatchFormat): boolean {
+  const p = FORMAT_PRESETS.fast4;
+  return (
+    f.bestOf === p.bestOf &&
+    f.gamesPerSet === p.gamesPerSet &&
+    f.tiebreakAt === p.tiebreakAt &&
+    f.tiebreakPoints === p.tiebreakPoints &&
+    !!f.tiebreakSuddenDeath &&
+    !f.finalSetMatchTiebreak
+  );
+}
 
 export function setsToWin(format: MatchFormat): number {
   return (format.bestOf + 1) / 2;
@@ -57,6 +82,9 @@ export function validateFormat(format: MatchFormat): string[] {
     errors.push('The set tiebreak must start at or before the games-per-set score.');
   }
   if (!isPositiveInt(format.tiebreakPoints)) errors.push('Tiebreak points must be a positive whole number.');
+  if (format.tiebreakSuddenDeath !== undefined && typeof format.tiebreakSuddenDeath !== 'boolean') {
+    errors.push('Tiebreak deciding point must be on or off.');
+  }
   if (!isPositiveInt(format.matchTiebreakPoints)) {
     errors.push('Match tiebreak points must be a positive whole number.');
   }

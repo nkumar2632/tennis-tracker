@@ -97,7 +97,7 @@ describe('sets', () => {
   it('plays a 7-point tiebreak at 6-6, won by two', () => {
     let s = run(AD, games('popopopopopo'));
     expect(s.games).toEqual({ player: 6, opponent: 6 });
-    expect(s.tiebreak).toEqual({ kind: 'set', firstServer: 'player', target: 7 });
+    expect(s.tiebreak).toEqual({ kind: 'set', firstServer: 'player', target: 7, suddenDeath: false });
     s = run(AD, 'pppppp oooooo', s);
     expect(pointScoreLabel(s, 'player')).toBe('6-6');
     s = run(AD, 'po', s); // 7-7: not over
@@ -138,7 +138,7 @@ describe('sets', () => {
 describe('match tiebreak', () => {
   it('replaces the third set with a 10-point tiebreak at one set all', () => {
     const s = run(MTB, games('pppppp') + games('oooooo'));
-    expect(s.tiebreak).toEqual({ kind: 'match', firstServer: s.gameServer, target: 10 });
+    expect(s.tiebreak).toEqual({ kind: 'match', firstServer: s.gameServer, target: 10, suddenDeath: false });
   });
 
   it('is won by two points and records the result as a set', () => {
@@ -182,6 +182,55 @@ describe('8-game pro set', () => {
     const s = run(tbAt7, games('popopopopopopo'));
     expect(s.games).toEqual({ player: 7, opponent: 7 });
     expect(s.tiebreak?.kind).toBe('set');
+  });
+});
+
+describe('Fast4', () => {
+  const F4 = FORMAT_PRESETS.fast4;
+
+  it('plays sets to 4 games: 4-2 wins the set, 3-3 starts a 5-point tiebreak', () => {
+    expect(run(F4, games('ppoopp')).completedSets[0]).toMatchObject({ games: { player: 4, opponent: 2 }, winner: 'player' });
+    const at33 = run(F4, games('popopo'));
+    expect(at33.games).toEqual({ player: 3, opponent: 3 });
+    expect(at33.tiebreak).toEqual({ kind: 'set', firstServer: 'player', target: 5, suddenDeath: true });
+  });
+
+  it('decides the tiebreak on one point at 4-4 (no 2-point lead needed)', () => {
+    const at33 = run(F4, games('popopo'));
+    expect(run(F4, 'ppppp', at33).completedSets[0]?.tiebreak).toEqual({ player: 5, opponent: 0 });
+    const at44 = run(F4, 'pppp oooo', at33);
+    expect(at44.points).toEqual({ player: 4, opponent: 4 });
+    expect(isPressurePoint(F4, at44)).toBe(true);
+    expect(isBreakPoint(F4, at44)).toBe(false);
+    expect(run(F4, 'o', at44).completedSets[0]).toMatchObject({
+      games: { player: 3, opponent: 4 },
+      tiebreak: { player: 4, opponent: 5 },
+      winner: 'opponent',
+    });
+    // Turned off, a 5-point tiebreak needs a 2-point lead like any other.
+    const winBy2: MatchFormat = { ...F4, tiebreakSuddenDeath: false };
+    const at44b = run(winBy2, 'pppp oooo', run(winBy2, games('popopo')));
+    expect(run(winBy2, 'p', at44b).completedSets).toHaveLength(0);
+    expect(run(winBy2, 'pp', at44b).completedSets[0]?.tiebreak).toEqual({ player: 6, opponent: 4 });
+  });
+
+  it('rotates the tiebreak serve 1-2-2, and the player who received first serves the deciding point', () => {
+    let s = run(F4, games('popopo'));
+    const servers: Side[] = [];
+    for (const c of 'ppppooooo') {
+      servers.push(serverOf(s));
+      s = scorePoint(F4, s, c === 'p' ? 'player' : 'opponent').state;
+    }
+    expect(servers).toEqual(['player', 'opponent', 'opponent', 'player', 'player', 'opponent', 'opponent', 'player', 'opponent']);
+    // As after any tiebreak, the player who received first serves the next set.
+    expect(serverOf(s)).toBe('opponent');
+  });
+
+  it('uses no-ad games and is best of 3 sets', () => {
+    expect(run(F4, 'pppooo o').games).toEqual({ player: 0, opponent: 1 });
+    const done = run(F4, games('pppp') + games('pppp'));
+    expect(done.winner).toBe('player');
+    expect(setScoreLine(done, 'player')).toBe('4-0 4-0');
   });
 });
 
@@ -278,12 +327,13 @@ describe('late start (joining a match in progress)', () => {
       kind: 'set',
       firstServer: 'player',
       target: 7,
+      suddenDeath: false,
     });
     const mtb = initialScore(MTB, 'opponent', {
       completedSets: [{ games: { player: 6, opponent: 3 } }, { games: { player: 4, opponent: 6 } }],
       games: { player: 0, opponent: 0 },
     });
-    expect(mtb.tiebreak).toEqual({ kind: 'match', firstServer: 'opponent', target: 10 });
+    expect(mtb.tiebreak).toEqual({ kind: 'match', firstServer: 'opponent', target: 10, suddenDeath: false });
   });
 
   it('numbers charted sets after the late-start sets', () => {

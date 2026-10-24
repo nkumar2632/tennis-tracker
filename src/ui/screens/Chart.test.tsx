@@ -3,6 +3,7 @@ import 'fake-indexeddb/auto';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FORMAT_PRESETS } from '../../domain/format';
+import { replay } from '../../domain/replay';
 import { newMatch, play } from '../../domain/test-helpers';
 import { db } from '../../storage/db';
 import { getMatch, getSetting } from '../../storage/repo';
@@ -155,3 +156,22 @@ describe('resume', () => {
     expect(view.path()).toBe('/');
   });
 });
+
+describe('Fast4', () => {
+  it('scores the 4-4 tiebreak point as the decider, served by the player who received first', async () => {
+    const fast4 = { ...play(newMatch(FORMAT_PRESETS.fast4, { opponentName: 'Lee' }), 'gp go gp go gp go p p p p o o o o'), id: 'm1' };
+    await openChart(fast4);
+    expect(statusText()).toContain('1st serve · Lee serving · Tiebreak');
+    tap('Lee winner');
+    await waitFor(async () => expect((await stored()).points).toHaveLength(fast4.points.length + 1));
+    // Lee won the set 4-3 on the deciding point and serves first in set 2.
+    expect(statusText()).toContain('1st serve · Lee serving');
+    expect(statusText()).not.toContain('Tiebreak');
+    expect(replay(await stored()).final.completedSets[0]).toMatchObject({
+      games: { player: 3, opponent: 4 },
+      tiebreak: { player: 4, opponent: 5 },
+      winner: 'opponent',
+    });
+  });
+});
+

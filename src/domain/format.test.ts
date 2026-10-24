@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FORMAT_PRESETS, isFinishedSetScore, validateFormat, validateStartingScore } from './format';
+import { FORMAT_PRESETS, isFast4, isFinishedSetScore, validateFormat, validateStartingScore } from './format';
 import { createMatch } from './match';
 import type { MatchFormat } from './types';
 
@@ -17,6 +17,7 @@ describe('validateFormat', () => {
   });
 
   it('rejects nonsense', () => {
+    expect(validateFormat({ ...FORMAT_PRESETS.fast4, tiebreakSuddenDeath: 'yes' as unknown as boolean })).toHaveLength(1);
     const bad: MatchFormat = { ...AD, gamesPerSet: 0, tiebreakPoints: 2.5 };
     expect(validateFormat(bad).length).toBeGreaterThanOrEqual(2);
     expect(validateFormat({ ...AD, tiebreakAt: 7 })).toHaveLength(1);
@@ -32,6 +33,24 @@ describe('isFinishedSetScore', () => {
     expect(isFinishedSetScore(AD, { player: 6, opponent: 5 })).toBe(false);
     expect(isFinishedSetScore(AD, { player: 5, opponent: 3 })).toBe(false);
   });
+
+  it('ends Fast4 sets at 4 games, or 4-3 after the tiebreak', () => {
+    const F4 = FORMAT_PRESETS.fast4;
+    expect(isFinishedSetScore(F4, { player: 4, opponent: 2 })).toBe(true);
+    expect(isFinishedSetScore(F4, { player: 3, opponent: 4 })).toBe(true);
+    expect(isFinishedSetScore(F4, { player: 3, opponent: 2 })).toBe(false);
+    expect(isFinishedSetScore(F4, { player: 3, opponent: 3 })).toBe(false);
+  });
+});
+
+describe('isFast4', () => {
+  it('recognizes the Fast4 rules whatever the no-ad setting', () => {
+    expect(isFast4(FORMAT_PRESETS.fast4)).toBe(true);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, noAd: false })).toBe(true);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, tiebreakSuddenDeath: false })).toBe(false);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, finalSetMatchTiebreak: true })).toBe(false);
+    expect(isFast4(AD)).toBe(false);
+  });
 });
 
 describe('validateStartingScore', () => {
@@ -45,6 +64,18 @@ describe('validateStartingScore', () => {
         games: { player: 0, opponent: 0 },
       }),
     ).toEqual([]);
+  });
+
+  it('accepts a Fast4 late start, including one that starts in the tiebreak', () => {
+    const F4 = FORMAT_PRESETS.fast4;
+    const start = (sets: [number, number][], games: [number, number]) =>
+      validateStartingScore(F4, {
+        completedSets: sets.map(([player, opponent]) => ({ games: { player, opponent } })),
+        games: { player: games[0], opponent: games[1] },
+      });
+    expect(start([[4, 3]], [2, 1])).toEqual([]);
+    expect(start([[2, 4]], [3, 3])).toEqual([]);
+    expect(start([], [4, 3])).toHaveLength(1);
   });
 
   it('rejects unfinished sets, finished matches and impossible games', () => {

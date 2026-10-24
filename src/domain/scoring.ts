@@ -17,8 +17,10 @@ export interface TiebreakState {
   kind: 'set' | 'match';
   /** Who served the first point of the tiebreak. */
   firstServer: Side;
-  /** Points needed to win (win by 2). */
+  /** Points needed to win (win by 2 unless `suddenDeath`). */
   target: number;
+  /** One deciding point at (target - 1) all instead of a 2-point lead (Fast4 set tiebreaks). */
+  suddenDeath: boolean;
 }
 
 export interface ScoreState {
@@ -64,8 +66,18 @@ function maybeStartMatchTiebreak(format: MatchFormat, state: ScoreState): void {
   const won = setsWon(state);
   const needed = setsToWin(format);
   if (format.finalSetMatchTiebreak && won.player === needed - 1 && won.opponent === needed - 1) {
-    state.tiebreak = { kind: 'match', firstServer: state.gameServer, target: format.matchTiebreakPoints };
+    state.tiebreak = { kind: 'match', firstServer: state.gameServer, target: format.matchTiebreakPoints, suddenDeath: false };
   }
+}
+
+function setTiebreak(format: MatchFormat, firstServer: Side): TiebreakState {
+  return { kind: 'set', firstServer, target: format.tiebreakPoints, suddenDeath: !!format.tiebreakSuddenDeath };
+}
+
+/** At (target - 1) all in a sudden-death tiebreak: the next point decides it. */
+function atDecidingPoint(state: ScoreState): boolean {
+  const tb = state.tiebreak;
+  return !!tb?.suddenDeath && state.points.player === tb.target - 1 && state.points.opponent === tb.target - 1;
 }
 
 export function initialScore(format: MatchFormat, firstServer: Side, start?: StartingScore): ScoreState {
@@ -88,14 +100,18 @@ export function initialScore(format: MatchFormat, firstServer: Side, start?: Sta
   }
   maybeStartMatchTiebreak(format, state);
   if (!state.tiebreak && state.games.player === format.tiebreakAt && state.games.opponent === format.tiebreakAt) {
-    state.tiebreak = { kind: 'set', firstServer, target: format.tiebreakPoints };
+    state.tiebreak = setTiebreak(format, firstServer);
   }
   return state;
 }
 
-/** Who serves the next point. In tiebreaks: first server serves 1 point, then 2 each, alternating. */
+/**
+ * Who serves the next point. In tiebreaks: first server serves 1 point, then 2 each, alternating.
+ * A sudden-death deciding point (Fast4, 4-4) is served by the player who received first.
+ */
 export function serverOf(state: ScoreState): Side {
   if (!state.tiebreak) return state.gameServer;
+  if (atDecidingPoint(state)) return otherSide(state.tiebreak.firstServer);
   const played = state.points.player + state.points.opponent;
   const turn = Math.floor((played + 1) / 2);
   return turn % 2 === 0 ? state.tiebreak.firstServer : otherSide(state.tiebreak.firstServer);
@@ -105,7 +121,7 @@ export function serverOf(state: ScoreState): Side {
 export function wouldWinGame(format: MatchFormat, state: ScoreState, side: Side): boolean {
   const mine = state.points[side] + 1;
   const theirs = state.points[otherSide(side)];
-  if (state.tiebreak) return mine >= state.tiebreak.target && mine - theirs >= 2;
+  if (state.tiebreak) return mine >= state.tiebreak.target && (state.tiebreak.suddenDeath ? mine > theirs : mine - theirs >= 2);
   if (format.noAd) return mine >= 4;
   return mine >= 4 && mine - theirs >= 2;
 }
@@ -176,7 +192,7 @@ export function scorePoint(format: MatchFormat, prev: ScoreState, pointWinner: S
       result.setWinner = pointWinner;
       finishSet(format, state, pointWinner);
     } else if (state.games.player === format.tiebreakAt && state.games.opponent === format.tiebreakAt) {
-      state.tiebreak = { kind: 'set', firstServer: state.gameServer, target: format.tiebreakPoints };
+      state.tiebreak = setTiebreak(format, state.gameServer);
     }
   }
   result.matchWinner = state.winner;
