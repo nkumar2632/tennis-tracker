@@ -102,7 +102,7 @@ Every decision, including later ones, is recorded in the Decisions table in [PLA
 | Oct 23 | **Phase 4:** season view with record, trends and head-to-head | [#4](https://github.com/nkumar2632/tennis-tracker/pull/4) |
 | Oct 23 | **Phase 5:** several players | [#5](https://github.com/nkumar2632/tennis-tracker/pull/5) |
 | Oct 24 | Project history and a small fix | [#6](https://github.com/nkumar2632/tennis-tracker/pull/6) |
-| Oct 24 | Fast4 format | |
+| Oct 24 | Fast4 format | [#7](https://github.com/nkumar2632/tennis-tracker/pull/7) |
 
 ## 6. Phase by phase
 
@@ -190,15 +190,24 @@ restore the previous name.
 
 ### After Phase 5: Fast4 scoring
 
-UTR events often use Fast4, so I added it as a format choice (October 24): best of 3 sets to 4
-games, a 5-point tiebreak at 3-3 decided by a single point at 4-4, no-ad games, and a 10-point match
-tiebreak instead of a third set. Some events use a 7-point tiebreak or a full third set, so every
-part stays adjustable. The scoring
-engine gained one option for this, a tiebreak deciding point instead of a 2-point lead, which can
-also be turned on for any other format under Adjust. Sources differ on who serves the 4-4 point; the
-app follows Tennis Australia club rules (the player who received first in the tiebreak) and keeps
-the usual tiebreak rotation for the other points. If an event does it differently, that's the one
-rule to revisit.
+UTR events often use Fast4, so I added it as a format choice (October 24). The **Fast4** button sets
+it up the way UTR events usually play it: best of 3 sets to 4 games, a 5-point tiebreak at 3-3
+decided by a single point at 4-4, no-ad games, and a 10-point match tiebreak (win by 2) instead of a
+third set.
+
+The tiebreaks change depending on who runs the event and where, so every part stays adjustable under
+**Adjust** on New match or in Match details:
+
+- a 5-point tiebreak with the next point winning at 4-4 (the default), or played as win by 2;
+- a 7-point tiebreak instead (the UK version of Fast4);
+- a 7-point match tiebreak, or a full third set, when the match is tied at one set all.
+
+New match remembers the last format used, and the format can be corrected mid-match; the points
+already charted are re-scored under the new rules. The scoring engine gained one option for this, a
+tiebreak deciding point instead of a 2-point lead, which can also be turned on for any other format.
+Sources differ on who serves the 4-4 point; the app follows Tennis Australia club rules (the player
+who received first in the tiebreak) and keeps the usual tiebreak rotation for the other points. If an
+event does it differently, that's the one rule to revisit.
 
 ## 7. Practical notes
 
