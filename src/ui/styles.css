@@ -1397,3 +1397,42 @@ textarea:focus {
   margin: 4px 0 0;
   font-size: 0.9rem;
 }
+
+/* ---------- Players ---------- */
+
+.player-switch {
+  margin: 4px 0 12px;
+}
+
+.player-switch .seg {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+
+.player-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.player-row .field {
+  flex: 1;
+  min-width: 0;
+  margin: 8px 0;
+}
+
+.player-delete {
+  width: auto;
+  flex: none;
+  margin: 8px 0;
+  color: var(--danger);
+}

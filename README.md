@@ -28,7 +28,7 @@ picks up the new version.
   log how the point ended; if it misses, tap Double fault.
 - **Unreturned vs Forced error:** the same moment seen from either side; the button decides who
   gets the credit. Tap **Unreturned** when the serve caused the miss (lunged, framed it, couldn't
-  handle the pace): it counts for the server, next to aces. For a routine return he missed, tap the
+  handle the pace): it counts for the server, next to aces. For a routine return the player missed, tap the
   returner's **Unforced error** and tag it **Return**. Keep the returner's column otherwise for errors
   later in the rally.
 - **Which shot?** (optional): the shot that ended the point, by the player whose button you tapped.
@@ -40,6 +40,17 @@ picks up the new version.
   match early (retired / stopped).
 - **Back up** from Settings after matches: everything lives only on the phone.
 
+## Several players
+
+Add players in **Settings → Players** (rename them there too). With two or more, Home has a button
+per player at the top: Home and Season show only that player's matches. **New match** is for the
+player shown on Home (you can pick another at the top of the form), and starting a match switches
+Home to that player. A match charted under the wrong player can be moved in ••• → Edit match
+details. Deleting a player deletes their matches, after a confirmation.
+
+Every report, season comparison and trend uses only that player's matches. Opponent names and UTRs
+are shared, so an opponent one player has faced is suggested for the others.
+
 ## Reviewing and sending a match
 
 Tap a match on Home. Its page has three tabs:
@@ -47,7 +58,7 @@ Tap a match on Home. Its page has three tabs:
 - **Stats:** every stat for both players, for the match or one set at a time, plus winners and
   unforced errors by stroke (when tagged) and a 1st-serve-% chart by service game.
 - **Timeline:** every point in plain language with the score after it. Tap one to change it.
-- **Report:** how this match compares with his season (the 12 months before it, practice
+- **Report:** how this match compares with the player's season (the 12 months before it, practice
   excluded, once there are 3 other matches), and **Share PDF report / Share Excel file / Share
   both** to send them by Messages, Mail, AirDrop or Save to Files.
 
@@ -55,18 +66,18 @@ Add or fix details (UTRs, notes, event) any time from ••• → Edit match d
 
 ## Season
 
-Tap **Season** on Home. The filters at the top (dates, events, surface, opponent UTR) apply to all
+Tap **Season** on Home (it shows the player chosen on Home). The filters at the top (dates, events, surface, opponent UTR) apply to all
 three tabs and stay set while the app is open. By default: the last 12 months, practice left out.
 
 - **Record:** wins and losses (stopped and unfinished matches are listed but not counted), the record
   against lower-rated, even and higher-rated opponents, and every match with the opponent's UTR.
-  The band compares the opponent's UTR with his at the time (within 0.5 is even); if his UTR is blank
-  on a match, his UTR from the nearest-dated match is used. Matches with a missing UTR show
+  The band compares the opponent's UTR with the player's at the time (within 0.5 is even); if the
+  player's UTR is blank on a match, their UTR from their nearest-dated match is used. Matches with a missing UTR show
   **Add UTR**.
 - **Trends:** 1st serve %, points won on 2nd serve, double faults, unforced errors, winners minus
-  unforced errors, and pressure points won, one dot per finished match, with his average as a dashed
+  unforced errors, and pressure points won, one dot per finished match, with the player's average as a dashed
   line. Tap a dot to see the match and open it.
-- **Head-to-head:** everyone he has played more than once, with the record and each match.
+- **Head-to-head:** everyone the player has played more than once, with the record and each match.
 
 ## Run locally
 

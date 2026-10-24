@@ -1,27 +1,47 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, createElement, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { BySide, Match } from '../domain/types';
+import { playerName } from '../domain/players';
+import type { BySide, Match, Player } from '../domain/types';
 import { db } from '../storage/db';
-import { DEFAULT_SETTINGS, allSettings, listMatches, type Settings } from '../storage/repo';
+import { DEFAULT_SETTINGS, allSettings, listMatches, listPlayers, type Settings } from '../storage/repo';
 import { commitMatch, loadMatch, peekMatch } from './store';
 
 export function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
 }
 
-const SettingsContext = createContext<Settings>(DEFAULT_SETTINGS);
+interface AppData {
+  settings: Settings;
+  /** Oldest first. */
+  players: Player[];
+}
+
+const AppDataContext = createContext<AppData>({ settings: DEFAULT_SETTINGS, players: [] });
 
 /**
- * Loads settings once for the whole app (and keeps them live), rendering nothing until they're ready,
- * so no screen ever flashes a placeholder name.
+ * Loads settings and players once for the whole app (and keeps them live), rendering nothing until
+ * they're ready, so no screen ever flashes a placeholder name.
  */
 export function SettingsGate({ children }: { children: ReactNode }) {
-  const settings = useLiveQuery(() => allSettings(db), []);
-  return settings ? createElement(SettingsContext.Provider, { value: settings }, children) : null;
+  const data = useLiveQuery(
+    () => db.transaction('r', db.settings, db.players, async () => ({ settings: await allSettings(db), players: await listPlayers(db) })),
+    [],
+  );
+  return data ? createElement(AppDataContext.Provider, { value: data }, children) : null;
 }
 
 export function useSettings(): Settings {
-  return useContext(SettingsContext);
+  return useContext(AppDataContext).settings;
+}
+
+export function usePlayers(): Player[] {
+  return useContext(AppDataContext).players;
+}
+
+/** The player Home and Season show: the one last chosen, else the first; undefined before any is added. */
+export function useCurrentPlayer(): Player | undefined {
+  const { settings, players } = useContext(AppDataContext);
+  return players.find((p) => p.id === settings.currentPlayerId) ?? players[0];
 }
 
 /** All matches, newest first; undefined while loading. */
@@ -29,12 +49,10 @@ export function useMatches(): Match[] | undefined {
   return useLiveQuery(() => listMatches(db), []);
 }
 
-export function namesFor(
-  settings: Pick<Settings, 'playerName'>,
-  match: Pick<Match, 'opponentName'> | null | undefined,
-): BySide<string> {
+/** The two names shown for a match: its player and the opponent. */
+export function namesFor(players: readonly Player[], match: Pick<Match, 'playerId' | 'opponentName'> | null | undefined): BySide<string> {
   return {
-    player: settings.playerName.trim() || 'Player',
+    player: playerName(players, match?.playerId),
     opponent: match?.opponentName.trim() || 'Opponent',
   };
 }

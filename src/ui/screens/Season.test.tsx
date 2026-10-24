@@ -68,9 +68,9 @@ describe('record tab', () => {
     expect((await screen.findByRole('region', { name: 'Record' })).textContent).toBe(
       '3–1Won 3 of 4 (75%)1 more not in the record (stopped or not finished)',
     );
-    expect(row('Lower-rated').textContent).toBe('Lower-ratedmore than 0.5 below him1–0');
+    expect(row('Lower-rated').textContent).toBe('Lower-ratedmore than 0.5 below Sam1–0');
     expect(row('Even').textContent).toBe('Evenwithin 0.50–0');
-    expect(row('Higher-rated').textContent).toBe('Higher-ratedmore than 0.5 above him1–1');
+    expect(row('Higher-rated').textContent).toBe('Higher-ratedmore than 0.5 above Sam1–1');
     expect(row('Unknown UTR').textContent).toBe('Unknown UTRa UTR is missing1–0');
     expect(matchRows().map((li) => li.textContent)).toEqual([
       'vs AnaOct 1, 2026 · Test Open · USTAStopped at 1-0Opponent UTR not enteredAdd UTR',

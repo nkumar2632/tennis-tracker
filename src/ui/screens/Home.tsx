@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { isResumable } from '../../domain/match';
+import { matchesOf, newPlayer } from '../../domain/players';
 import { defaultFilter, filterMatches, winLoss } from '../../domain/seasonView';
 import { db } from '../../storage/db';
-import { setSetting } from '../../storage/repo';
-import { useMatches, useSettings } from '../hooks';
+import { savePlayer, setSetting } from '../../storage/repo';
+import { useCurrentPlayer, useMatches, usePlayers } from '../hooks';
 import { today } from '../dates';
 import { MatchRow } from '../MatchRow';
 import { recordText } from '../season/RecordView';
 
+/** First launch: name the first player. More can be added in Settings. */
 function NameCard() {
   const [name, setName] = useState('');
   return (
@@ -16,11 +18,13 @@ function NameCard() {
       className="card"
       onSubmit={(e) => {
         e.preventDefault();
-        if (name.trim()) void setSetting(db, 'playerName', name.trim());
+        if (!name.trim()) return;
+        const player = newPlayer(name);
+        void savePlayer(db, player).then(() => setSetting(db, 'currentPlayerId', player.id));
       }}
     >
       <label className="field">
-        <span className="field-label">Who are you charting? (your son&apos;s name)</span>
+        <span className="field-label">Who are you charting? (the player&apos;s name)</span>
         <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
       </label>
       <button type="submit" className="btn btn-primary" disabled={!name.trim()}>
@@ -30,10 +34,34 @@ function NameCard() {
   );
 }
 
+/** Who Home (and Season) is showing, when there's more than one player. */
+function PlayerSwitch() {
+  const players = usePlayers();
+  const current = useCurrentPlayer();
+  if (players.length < 2) return null;
+  return (
+    <div className="segmented player-switch" role="radiogroup" aria-label="Player">
+      {players.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          role="radio"
+          aria-checked={p.id === current?.id}
+          className={p.id === current?.id ? 'seg on' : 'seg'}
+          onClick={() => void setSetting(db, 'currentPlayerId', p.id)}
+        >
+          {p.name.trim() || 'Player'}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function HomeScreen() {
-  const settings = useSettings();
-  const matches = useMatches();
-  if (!matches) return <div className="screen" />;
+  const player = useCurrentPlayer();
+  const everyone = useMatches();
+  if (!everyone) return <div className="screen" />;
+  const matches = player ? matchesOf(everyone, player.id) : [];
   const resumable = matches.filter(isResumable);
   const others = matches.filter((m) => !isResumable(m));
   const lastYear = winLoss(filterMatches(matches, defaultFilter(today())));
@@ -46,22 +74,24 @@ export function HomeScreen() {
         </Link>
       </header>
 
-      {!settings.playerName && <NameCard />}
+      {player ? <PlayerSwitch /> : <NameCard />}
 
       {resumable.length > 0 && (
         <section>
           <h2 className="section-title">In progress</h2>
           <ul className="match-list">
             {resumable.map((m) => (
-              <MatchRow key={m.id} match={m} playerName={settings.playerName} />
+              <MatchRow key={m.id} match={m} />
             ))}
           </ul>
         </section>
       )}
 
-      <Link href="/new" className="btn btn-primary btn-big">
-        + New match
-      </Link>
+      {player && (
+        <Link href="/new" className="btn btn-primary btn-big">
+          + New match
+        </Link>
+      )}
 
       {matches.length > 0 && (
         <Link href="/season" className="season-link">
@@ -84,7 +114,7 @@ export function HomeScreen() {
         ) : (
           <ul className="match-list">
             {others.map((m) => (
-              <MatchRow key={m.id} match={m} playerName={settings.playerName} />
+              <MatchRow key={m.id} match={m} />
             ))}
           </ul>
         )}

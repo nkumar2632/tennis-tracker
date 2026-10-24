@@ -104,6 +104,13 @@ export type Handedness = 'right' | 'left';
  */
 export type MatchStatus = 'in_progress' | 'suspended' | 'completed' | 'retired' | 'stopped';
 
+/** Someone being charted. Each match belongs to one player; the opponent is just a name on the match. */
+export interface Player {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
 export interface Match {
   id: string;
   schemaVersion: number;
@@ -113,6 +120,8 @@ export interface Match {
   retiredSide?: Side;
 
   // Setup
+  /** The player being charted (always shown on the left). */
+  playerId: string;
   /** YYYY-MM-DD */
   date: string;
   eventName: string;
@@ -123,7 +132,7 @@ export interface Match {
   opponentName: string;
   opponentUtr?: number;
   opponentHand?: Handedness;
-  /** The son's UTR at the time of the match. */
+  /** The player's UTR at the time of the match. */
   playerUtr?: number;
   notes: string;
   format: MatchFormat;

@@ -1,28 +1,32 @@
 /** Full backup of all data as one JSON file, and the checks run before restoring one. */
 import { validateFormat } from './format';
 import { SCHEMA_VERSION } from './match';
+import { adoptMatch, newPlayer } from './players';
 import { replay } from './replay';
-import type { Match } from './types';
+import type { Match, Player } from './types';
 import { RALLY_ENDINGS, SERVE_ENDINGS, SIDES } from './types';
 
-export const BACKUP_VERSION = 1;
+/** 2: players. Version 1 backups (a single player, named in the settings) still restore. */
+export const BACKUP_VERSION = 2;
 
 export interface Backup {
   app: 'tennis-tracker';
   kind: 'backup';
   version: number;
   exportedAt: string;
+  players: Player[];
   matches: Match[];
-  /** Settings worth keeping (name, last-used setup); never the match being charted. */
+  /** Settings worth keeping (last-used setup, chosen player); never the match being charted. */
   settings: Record<string, unknown>;
 }
 
-export function makeBackup(matches: Match[], settings: Record<string, unknown>, now = new Date()): Backup {
+export function makeBackup(players: Player[], matches: Match[], settings: Record<string, unknown>, now = new Date()): Backup {
   return {
     app: 'tennis-tracker',
     kind: 'backup',
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
+    players,
     matches,
     settings,
   };
@@ -39,9 +43,10 @@ export type ParsedBackup = { ok: true; backup: Backup } | { ok: false; error: st
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const ENDINGS = [...SERVE_ENDINGS, ...RALLY_ENDINGS] as string[];
 
-function matchProblem(m: unknown): string | null {
+function matchProblem(m: unknown, version: number, playerIds: ReadonlySet<string>): string | null {
   if (!isObject(m)) return 'not a match';
   if (typeof m.id !== 'string' || !m.id) return 'missing id';
+  if (version >= 2 && !playerIds.has(m.playerId as string)) return 'unknown player';
   if (typeof m.schemaVersion !== 'number' || m.schemaVersion > SCHEMA_VERSION) {
     return 'made by a newer version of the app';
   }
@@ -76,14 +81,35 @@ export function parseBackup(text: string): ParsedBackup {
     return { ok: false, error: 'That backup was made by a newer version of the app. Update the app first.' };
   }
   if (!Array.isArray(data.matches)) return { ok: false, error: 'That backup has no match list.' };
+  const settings = isObject(data.settings) ? { ...data.settings } : {};
+
+  let players: Player[];
+  if (data.version >= 2) {
+    if (!Array.isArray(data.players)) return { ok: false, error: 'That backup has no player list.' };
+    players = [];
+    for (const [i, p] of data.players.entries()) {
+      const ok = isObject(p) && typeof p.id === 'string' && p.id && typeof p.name === 'string' && typeof p.createdAt === 'number';
+      if (!ok || players.some((q) => q.id === p.id)) return { ok: false, error: `Player ${i + 1} in the backup is damaged.` };
+      players.push({ id: p.id as string, name: p.name as string, createdAt: p.createdAt as number });
+    }
+  } else {
+    // One player, named by the old single name setting.
+    const name = typeof settings.playerName === 'string' ? settings.playerName : '';
+    players = name.trim() || data.matches.length > 0 ? [newPlayer(name.trim() || 'Player', 0)] : [];
+    delete settings.playerName;
+    if (players[0]) settings.currentPlayerId = players[0].id;
+  }
+
+  const playerIds = new Set(players.map((p) => p.id));
   const ids = new Set<string>();
   for (const [i, m] of data.matches.entries()) {
-    const problem = matchProblem(m);
+    const problem = matchProblem(m, data.version, playerIds);
     if (problem) return { ok: false, error: `Match ${i + 1} in the backup is damaged (${problem}).` };
     const id = (m as Match).id;
     if (ids.has(id)) return { ok: false, error: `Match ${i + 1} in the backup is a duplicate.` };
     ids.add(id);
   }
+  const matches = data.version >= 2 ? (data.matches as Match[]) : (data.matches as Match[]).map((m) => adoptMatch(m, players[0]!.id));
   return {
     ok: true,
     backup: {
@@ -91,8 +117,9 @@ export function parseBackup(text: string): ParsedBackup {
       kind: 'backup',
       version: data.version,
       exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : '',
-      matches: data.matches as Match[],
-      settings: isObject(data.settings) ? data.settings : {},
+      players,
+      matches,
+      settings,
     },
   };
 }

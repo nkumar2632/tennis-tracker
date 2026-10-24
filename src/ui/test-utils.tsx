@@ -5,16 +5,21 @@ import { Router } from 'wouter';
 import { memoryLocation } from 'wouter/memory-location';
 import type { Match } from '../domain/types';
 import { db } from '../storage/db';
-import { saveMatch, setSetting } from '../storage/repo';
+import { saveMatch, savePlayer, setSetting } from '../storage/repo';
 import { Routes, useResumeOnLaunch } from './routes';
 import { forgetAllMatches, whenSaved } from './store';
 
+/** Empty the app, then add one player (id 'p1', the default in test matches) unless `playerName` is ''. */
 export async function resetData(playerName = 'Sam'): Promise<void> {
   await whenSaved();
   forgetAllMatches();
   await db.matches.clear();
   await db.settings.clear();
-  if (playerName) await setSetting(db, 'playerName', playerName);
+  await db.players.clear();
+  if (playerName) {
+    await savePlayer(db, { id: 'p1', name: playerName, createdAt: 1 });
+    await setSetting(db, 'currentPlayerId', 'p1');
+  }
 }
 
 export async function seed(...matches: Match[]): Promise<void> {

@@ -9,21 +9,11 @@ import { isResumable, matchOutcome } from '../domain/match';
 import { replay } from '../domain/replay';
 import type { Match } from '../domain/types';
 import { shortDate } from './dates';
-import { namesFor } from './hooks';
+import { namesFor, usePlayers } from './hooks';
 
-export function MatchRow({
-  match,
-  playerName,
-  extra,
-  action,
-}: {
-  match: Match;
-  playerName: string;
-  extra?: ReactNode;
-  action?: ReactNode;
-}) {
+export function MatchRow({ match, extra, action }: { match: Match; extra?: ReactNode; action?: ReactNode }) {
   const r = replay(match);
-  const names = namesFor({ playerName }, match);
+  const names = namesFor(usePlayers(), match);
   const outcome = matchOutcome(match, r);
   const badge = outcome.winner ? (outcome.winner === 'player' ? 'W' : 'L') : '';
   const event = [match.eventName, EVENT_TYPE_LABELS[match.eventType], match.round].filter(Boolean).join(' · ');

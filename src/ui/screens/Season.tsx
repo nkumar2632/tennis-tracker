@@ -1,10 +1,11 @@
-/** Season: record, trends and head-to-head across matches, under one set of filters. */
+/** Season: one player's record, trends and head-to-head across matches, under one set of filters. */
 import { useMemo, useState } from 'react';
 import { Link } from 'wouter';
+import { matchesOf } from '../../domain/players';
 import { defaultFilter, filterMatches, type SeasonFilter } from '../../domain/seasonView';
 import { TopBar } from '../components';
 import { today } from '../dates';
-import { useMatches, useSettings } from '../hooks';
+import { useCurrentPlayer, useMatches, usePlayers } from '../hooks';
 import { Filters } from '../season/Filters';
 import { HeadToHeadView } from '../season/HeadToHeadView';
 import { RecordView } from '../season/RecordView';
@@ -27,8 +28,12 @@ export function forgetSeasonFilter(): void {
 }
 
 export function SeasonScreen({ tab }: { tab: SeasonTab }) {
-  const settings = useSettings();
-  const all = useMatches();
+  const players = usePlayers();
+  const player = useCurrentPlayer();
+  const everyone = useMatches();
+  // Only ever one player's matches: records, trends and UTR fallbacks never mix players.
+  const all = useMemo(() => (everyone && player ? matchesOf(everyone, player.id) : everyone && []), [everyone, player]);
+  const name = player?.name.trim() || 'Player';
   const [filter, setFilterState] = useState(() => remembered ?? defaultFilter(today()));
   const setFilter = (f: SeasonFilter) => {
     remembered = f;
@@ -38,7 +43,7 @@ export function SeasonScreen({ tab }: { tab: SeasonTab }) {
 
   return (
     <div className="screen">
-      <TopBar back="/" backLabel="Home" title="Season" />
+      <TopBar back="/" backLabel="Home" title={players.length > 1 ? `${name}'s season` : 'Season'} />
       <nav className="tabs season-tabs" aria-label="Season">
         {TABS.map(([key, label, path]) => (
           <Link
@@ -56,11 +61,11 @@ export function SeasonScreen({ tab }: { tab: SeasonTab }) {
       {!all ? (
         <p className="muted">Loading…</p>
       ) : tab === 'record' ? (
-        <RecordView all={all} matches={matches} filter={filter} playerName={settings.playerName} />
+        <RecordView all={all} matches={matches} filter={filter} playerName={name} />
       ) : tab === 'trends' ? (
         <TrendsView matches={matches} />
       ) : (
-        <HeadToHeadView matches={matches} playerName={settings.playerName} />
+        <HeadToHeadView matches={matches} />
       )}
     </div>
   );

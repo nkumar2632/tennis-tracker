@@ -3,6 +3,7 @@ import { FORMAT_PRESETS } from './format';
 import { endMatchEarly } from './log';
 import {
   TRENDS,
+  UTR_BANDS,
   defaultFilter,
   filterMatches,
   headToHead,
@@ -10,6 +11,7 @@ import {
   trendAverage,
   trendSeries,
   utrBand,
+  utrBandHint,
   winLoss,
   winPct,
   withDates,
@@ -48,6 +50,22 @@ describe('UTR bands', () => {
     expect(playerUtrFor(blank, all)).toBe(7.0); // 14 days either side: the earlier one
     expect(utrBand(blank, all)).toBe('higher');
     expect(playerUtrFor(m({ date: '2026-06-20' }), all)).toBe(7.6);
+  });
+
+  it("only falls back to the same player's UTR", () => {
+    const blank = m({ date: '2026-06-15', opponentUtr: 8 });
+    const sibling = m({ date: '2026-06-14', playerUtr: 4, playerId: 'p2' });
+    expect(playerUtrFor(blank, [blank, sibling])).toBeUndefined();
+    expect(utrBand(blank, [blank, sibling])).toBe('unknown');
+  });
+
+  it('explains each band with the player\'s name', () => {
+    expect(UTR_BANDS.map((b) => utrBandHint(b, 'Sam'))).toEqual([
+      'more than 0.5 below Sam',
+      'within 0.5',
+      'more than 0.5 above Sam',
+      'a UTR is missing',
+    ]);
   });
 
   it('is unknown without the opponent UTR, or with no UTR of his anywhere', () => {

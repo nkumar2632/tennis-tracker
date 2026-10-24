@@ -9,14 +9,14 @@ import { pointScoreLabel } from '../../domain/scoring';
 import type { Ending, Side } from '../../domain/types';
 import { SIDES, isServeEnding, otherSide } from '../../domain/types';
 import { ErrorBox, TopBar } from '../components';
-import { namesFor, useMatchEditor, useSettings } from '../hooks';
+import { namesFor, useMatchEditor, usePlayers } from '../hooks';
 import { Timeline } from '../match/Timeline';
 
 export function PointsScreen({ id }: { id: string }) {
   const { match } = useMatchEditor(id);
-  const settings = useSettings();
+  const players = usePlayers();
   if (!match) return <div className="screen">{match === null && <p>That match no longer exists.</p>}</div>;
-  const names = namesFor(settings, match);
+  const names = namesFor(players, match);
   const r = replay(match);
   return (
     <div className="screen">
@@ -58,13 +58,13 @@ export function PointEditorScreen({
   list: 'points' | 'timeline';
 }) {
   const { match, apply, error } = useMatchEditor(id);
-  const settings = useSettings();
+  const players = usePlayers();
   const [, navigate] = useLocation();
   const [draft, setDraft] = useState<PointEdit | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!match) return <div className="screen">{match === null && <p>That match no longer exists.</p>}</div>;
-  const names = namesFor(settings, match);
+  const names = namesFor(players, match);
   const r = replay(match);
   const targetId = pointId ?? beforeId;
   const index = match.points.findIndex((p) => p.id === targetId);

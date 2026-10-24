@@ -5,7 +5,8 @@ import { replay, type Replay } from './replay';
 import type { Match, MatchStatus, Side } from './types';
 import { otherSide } from './types';
 
-export const SCHEMA_VERSION = 1;
+/** 2: matches belong to a player (`playerId`). */
+export const SCHEMA_VERSION = 2;
 
 export type MatchSetup = Omit<
   Match,

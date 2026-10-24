@@ -3,7 +3,8 @@ import { backupFileName, makeBackup, parseBackup } from './backup';
 import { newMatch, play } from './test-helpers';
 
 const match = play(newMatch(), 'gp A 2pW:fh D');
-const good = () => makeBackup([match], { playerName: 'Sam' }, new Date('2026-10-21T12:00:00Z'));
+const sam = { id: 'p1', name: 'Sam', createdAt: 1 };
+const good = () => makeBackup([sam], [match], { currentPlayerId: 'p1' }, new Date('2026-10-21T12:00:00Z'));
 
 describe('backup', () => {
   it('round-trips through JSON', () => {
@@ -33,6 +34,33 @@ describe('backup', () => {
       ok: false,
       error: expect.stringMatching(/after the end/),
     });
+  });
+
+  it('rejects damaged players and matches of unknown players', () => {
+    expect(parseBackup(JSON.stringify({ ...good(), players: undefined }))).toMatchObject({ ok: false, error: expect.stringMatching(/no player list/) });
+    expect(parseBackup(JSON.stringify({ ...good(), players: [{ id: 'p1' }] }))).toMatchObject({ ok: false, error: expect.stringMatching(/Player 1/) });
+    expect(parseBackup(JSON.stringify({ ...good(), players: [sam, sam] }))).toMatchObject({ ok: false, error: expect.stringMatching(/Player 2/) });
+    expect(parseBackup(JSON.stringify({ ...good(), matches: [{ ...match, playerId: 'p9' }] }))).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/unknown player/),
+    });
+  });
+
+  it('restores a backup from before players: one player, named from the old setting', () => {
+    const { playerId: _, ...legacy } = { ...match, schemaVersion: 1 };
+    const v1 = { app: 'tennis-tracker', kind: 'backup', version: 1, exportedAt: 'x', matches: [legacy], settings: { playerName: 'Sam', lastSetup: null } };
+    const parsed = parseBackup(JSON.stringify(v1));
+    if (!parsed.ok) throw new Error(parsed.error);
+    const [player] = parsed.backup.players;
+    expect(parsed.backup.players).toHaveLength(1);
+    expect(player!.name).toBe('Sam');
+    expect(parsed.backup.matches).toEqual([{ ...match, playerId: player!.id }]);
+    expect(parsed.backup.settings).toEqual({ lastSetup: null, currentPlayerId: player!.id });
+    // No name saved: "Player". Nothing at all: no players.
+    const unnamed = parseBackup(JSON.stringify({ ...v1, settings: {} }));
+    expect(unnamed.ok && unnamed.backup.players.map((p) => p.name)).toEqual(['Player']);
+    const empty = parseBackup(JSON.stringify({ ...v1, matches: [], settings: {} }));
+    expect(empty.ok && empty.backup.players).toEqual([]);
   });
 
   it('rejects duplicate matches', () => {

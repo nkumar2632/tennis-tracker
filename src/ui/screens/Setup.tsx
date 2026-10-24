@@ -1,6 +1,7 @@
 /**
  * New match and "Match details". Only opponent, first server and format are required; everything else
- * can be filled in now or later. Remembers the last event, surface and format.
+ * can be filled in now or later. Remembers the last event, surface and format; the player's UTR comes
+ * from their latest match.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'wouter';
@@ -8,17 +9,19 @@ import { FORMAT_PRESETS, FORMAT_PRESET_LABELS, type FormatPresetKey } from '../.
 import { EVENT_TYPE_LABELS, SURFACE_LABELS, formatSummary } from '../../domain/labels';
 import { createMatch, setupOf, updateSetup, validateSetup, type MatchSetup } from '../../domain/match';
 import { findOpponent, pastOpponents } from '../../domain/opponents';
+import { latestUtr } from '../../domain/players';
 import type { EventType, Handedness, Match, MatchFormat, Side, StartingScore, Surface } from '../../domain/types';
 import { db } from '../../storage/db';
 import { setSetting, type SetupDefaults } from '../../storage/repo';
 import { Segmented, TopBar } from '../components';
-import { errorMessage, namesFor, useMatchEditor, useMatches, useSettings } from '../hooks';
+import { errorMessage, namesFor, useCurrentPlayer, useMatchEditor, useMatches, usePlayers, useSettings } from '../hooks';
 import { commitMatch } from '../store';
 import { today } from '../dates';
 
 
 /** Draft of the form. Numbers are kept as text while typing. */
 interface Draft {
+  playerId: string;
   date: string;
   eventName: string;
   eventType: EventType;
@@ -40,6 +43,7 @@ interface Draft {
 function draftFrom(setup: MatchSetup): Draft {
   const s = setup.startingScore;
   return {
+    playerId: setup.playerId,
     date: setup.date,
     eventName: setup.eventName,
     eventType: setup.eventType,
@@ -59,8 +63,9 @@ function draftFrom(setup: MatchSetup): Draft {
   };
 }
 
-function newDraft(defaults: SetupDefaults | null): Draft {
+function newDraft(defaults: SetupDefaults | null, playerId: string, playerUtr: number | undefined): Draft {
   return {
+    playerId,
     date: today(),
     eventName: defaults?.eventName ?? '',
     eventType: defaults?.eventType ?? 'usta',
@@ -70,7 +75,7 @@ function newDraft(defaults: SetupDefaults | null): Draft {
     opponentName: '',
     opponentUtr: '',
     opponentHand: undefined,
-    playerUtr: defaults?.playerUtr?.toString() ?? '',
+    playerUtr: playerUtr?.toString() ?? '',
     notes: '',
     format: defaults?.format ?? FORMAT_PRESETS.twoSetsMatchTiebreak,
     firstServer: undefined,
@@ -108,6 +113,7 @@ function toSetup(d: Draft, playerName: string): { setup?: MatchSetup; errors: st
     };
   }
   const setup: MatchSetup = {
+    playerId: d.playerId,
     date: d.date,
     eventName: d.eventName.trim(),
     eventType: d.eventType,
@@ -237,14 +243,35 @@ function ScorePair({ label, value, names, onChange, onRemove }: {
   );
 }
 
-function SetupForm({ initial, mode, onSubmit }: { initial: Draft; mode: 'new' | 'edit'; onSubmit: (setup: MatchSetup) => string | null }) {
-  const settings = useSettings();
-  const matches = useMatches();
+function SetupForm({
+  initial,
+  mode,
+  matches,
+  onSubmit,
+}: {
+  initial: Draft;
+  mode: 'new' | 'edit';
+  /** Every match (for opponent and UTR prefills); undefined while loading. */
+  matches: Match[] | undefined;
+  onSubmit: (setup: MatchSetup) => string | null;
+}) {
+  const players = usePlayers();
+  // Opponents are shared: siblings often play the same people, and a UTR is the opponent's.
   const opponents = useMemo(() => pastOpponents(matches ?? []), [matches]);
   const [d, setD] = useState<Draft>(initial);
   const [errors, setErrors] = useState<string[]>([]);
-  const names = namesFor(settings, { opponentName: d.opponentName });
+  const names = namesFor(players, { playerId: d.playerId, opponentName: d.opponentName });
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setD((prev) => ({ ...prev, [key]: value }));
+
+  const onPlayer = (playerId: string) => {
+    setD((prev) => {
+      const next = { ...prev, playerId };
+      // A new match's UTR follows the player, unless it was typed in.
+      const utrOf = (id: string) => latestUtr(matches ?? [], id)?.toString() ?? '';
+      if (mode === 'new' && prev.playerUtr === utrOf(prev.playerId)) next.playerUtr = utrOf(playerId);
+      return next;
+    });
+  };
 
   const onOpponent = (name: string) => {
     setD((prev) => {
@@ -276,6 +303,9 @@ function SetupForm({ initial, mode, onSubmit }: { initial: Draft; mode: 'new' | 
         submit();
       }}
     >
+      {players.length > 1 && (
+        <Segmented label="Player" value={d.playerId} options={players.map((p) => [p.id, p.name.trim() || 'Player'] as const)} onChange={(v) => v && onPlayer(v)} />
+      )}
       <label className="field">
         <span className="field-label">Opponent</span>
         <input list="past-opponents" value={d.opponentName} autoComplete="off" onChange={(e) => onOpponent(e.target.value)} />
@@ -399,13 +429,27 @@ function SetupForm({ initial, mode, onSubmit }: { initial: Draft; mode: 'new' | 
 
 export function NewMatchScreen() {
   const settings = useSettings();
+  const player = useCurrentPlayer();
+  const matches = useMatches();
   const [, navigate] = useLocation();
+  if (!player) {
+    return (
+      <div className="screen">
+        <TopBar back="/" backLabel="Home" title="New match" />
+        <p>Add a player first.</p>
+        <Link href="/">Home</Link>
+      </div>
+    );
+  }
+  // The UTR prefill needs the match list.
+  if (!matches) return <div className="screen" />;
   return (
     <div className="screen">
       <TopBar back="/" backLabel="Home" title="New match" />
       <SetupForm
-        initial={newDraft(settings.lastSetup)}
+        initial={newDraft(settings.lastSetup, player.id, latestUtr(matches, player.id))}
         mode="new"
+        matches={matches}
         onSubmit={(setup) => {
           const match = createMatch(setup);
           const defaults: SetupDefaults = {
@@ -415,10 +459,11 @@ export function NewMatchScreen() {
             indoor: setup.indoor,
             format: setup.format,
           };
-          if (setup.playerUtr !== undefined) defaults.playerUtr = setup.playerUtr;
           void commitMatch(match);
           void setSetting(db, 'lastSetup', defaults);
           void setSetting(db, 'activeMatchId', match.id);
+          // Home and Season follow the player being charted.
+          void setSetting(db, 'currentPlayerId', match.playerId);
           navigate(`/match/${match.id}/chart`, { replace: true });
           return null;
         }}
@@ -429,6 +474,7 @@ export function NewMatchScreen() {
 
 export function EditMatchScreen({ id }: { id: string }) {
   const { match, apply } = useMatchEditor(id);
+  const matches = useMatches();
   const [, navigate] = useLocation();
   const [initial, setInitial] = useState<Draft | null>(null);
   useEffect(() => {
@@ -450,6 +496,7 @@ export function EditMatchScreen({ id }: { id: string }) {
       <SetupForm
         initial={initial}
         mode="edit"
+        matches={matches}
         onSubmit={(setup) => {
           let next: Match;
           try {

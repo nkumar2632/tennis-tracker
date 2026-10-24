@@ -19,13 +19,19 @@ export const UTR_BAND_LABELS: Record<UtrBand, string> = {
   unknown: 'Unknown UTR',
 };
 
-/** What each band means, for the filter. */
-export const UTR_BAND_HINTS: Record<UtrBand, string> = {
-  lower: 'more than 0.5 below him',
-  even: 'within 0.5',
-  higher: 'more than 0.5 above him',
-  unknown: 'a UTR is missing',
-};
+/** What a band means, e.g. "more than 0.5 below Sam". */
+export function utrBandHint(band: UtrBand, playerName: string): string {
+  switch (band) {
+    case 'lower':
+      return `more than 0.5 below ${playerName}`;
+    case 'even':
+      return 'within 0.5';
+    case 'higher':
+      return `more than 0.5 above ${playerName}`;
+    case 'unknown':
+      return 'a UTR is missing';
+  }
+}
 
 /** Within this many UTR points either way counts as "even". */
 export const EVEN_BAND = 0.5;
@@ -34,19 +40,22 @@ function daysBetween(a: string, b: string): number {
   return Math.abs(Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86_400_000;
 }
 
-/** His UTR for a match: as entered, else from the nearest-dated match that has one (earlier wins ties). */
+/**
+ * The player's UTR for a match: as entered, else from their nearest-dated match that has one
+ * (earlier wins ties).
+ */
 export function playerUtrFor(match: Match, all: readonly Match[]): number | undefined {
   if (match.playerUtr !== undefined) return match.playerUtr;
   let best: { utr: number; days: number; date: string } | undefined;
   for (const m of all) {
-    if (m.playerUtr === undefined) continue;
+    if (m.playerUtr === undefined || m.playerId !== match.playerId) continue;
     const days = daysBetween(m.date, match.date);
     if (!best || days < best.days || (days === best.days && m.date < best.date)) best = { utr: m.playerUtr, days, date: m.date };
   }
   return best?.utr;
 }
 
-/** Opponent's UTR minus his, in bands. Unknown when either UTR isn't available. */
+/** Opponent's UTR minus the player's, in bands. Unknown when either UTR isn't available. */
 export function utrBand(match: Match, all: readonly Match[]): UtrBand {
   const mine = playerUtrFor(match, all);
   if (match.opponentUtr === undefined || mine === undefined) return 'unknown';
