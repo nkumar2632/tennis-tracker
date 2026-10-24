@@ -44,11 +44,11 @@ describe('isFinishedSetScore', () => {
 });
 
 describe('isFast4', () => {
-  it('recognizes the Fast4 rules whatever the no-ad setting', () => {
+  it('recognizes Fast4 sets whatever the tiebreak, third set or no-ad details', () => {
     expect(isFast4(FORMAT_PRESETS.fast4)).toBe(true);
-    expect(isFast4({ ...FORMAT_PRESETS.fast4, noAd: false })).toBe(true);
-    expect(isFast4({ ...FORMAT_PRESETS.fast4, tiebreakSuddenDeath: false })).toBe(false);
-    expect(isFast4({ ...FORMAT_PRESETS.fast4, finalSetMatchTiebreak: true })).toBe(false);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, noAd: false, finalSetMatchTiebreak: false })).toBe(true);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, tiebreakPoints: 7, tiebreakSuddenDeath: false })).toBe(true);
+    expect(isFast4({ ...FORMAT_PRESETS.fast4, tiebreakAt: 4 })).toBe(false);
     expect(isFast4(AD)).toBe(false);
   });
 });

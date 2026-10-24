@@ -226,11 +226,17 @@ describe('Fast4', () => {
     expect(serverOf(s)).toBe('opponent');
   });
 
-  it('uses no-ad games and is best of 3 sets', () => {
+  it('uses no-ad games, and a 10-point match tiebreak instead of a third set', () => {
     expect(run(F4, 'pppooo o').games).toEqual({ player: 0, opponent: 1 });
-    const done = run(F4, games('pppp') + games('pppp'));
-    expect(done.winner).toBe('player');
-    expect(setScoreLine(done, 'player')).toBe('4-0 4-0');
+    const straight = run(F4, games('pppp') + games('pppp'));
+    expect(straight.winner).toBe('player');
+    expect(setScoreLine(straight, 'player')).toBe('4-0 4-0');
+    const oneAll = run(F4, games('pppp') + games('oooo'));
+    expect(oneAll.tiebreak).toEqual({ kind: 'match', firstServer: oneAll.gameServer, target: 10, suddenDeath: false });
+    // The match tiebreak is won by two: 10-9 plays on.
+    const at99 = run(F4, 'ppppppppp ooooooooo', oneAll);
+    expect(run(F4, 'p', at99).winner).toBeNull();
+    expect(run(F4, 'pp', at99).winner).toBe('player');
   });
 });
 

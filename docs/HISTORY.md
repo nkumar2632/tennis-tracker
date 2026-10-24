@@ -191,7 +191,9 @@ restore the previous name.
 ### After Phase 5: Fast4 scoring
 
 UTR events often use Fast4, so I added it as a format choice (October 24): best of 3 sets to 4
-games, a 5-point tiebreak at 3-3 decided by a single point at 4-4, and no-ad games. The scoring
+games, a 5-point tiebreak at 3-3 decided by a single point at 4-4, no-ad games, and a 10-point match
+tiebreak instead of a third set. Some events use a 7-point tiebreak or a full third set, so every
+part stays adjustable. The scoring
 engine gained one option for this, a tiebreak deciding point instead of a 2-point lead, which can
 also be turned on for any other format under Adjust. Sources differ on who serves the 4-4 point; the
 app follows Tennis Australia club rules (the player who received first in the tiebreak) and keeps

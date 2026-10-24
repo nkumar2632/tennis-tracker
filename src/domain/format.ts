@@ -29,14 +29,17 @@ export const FORMAT_PRESETS = {
     matchTiebreakPoints: 10,
     noAd: false,
   },
-  /** Fast4 (used at UTR events): sets to 4, 5-point tiebreak at 3-3 decided by one point at 4-4, no-ad. */
+  /**
+   * Fast4 as UTR events play it: sets to 4, a 5-point tiebreak at 3-3 decided by one point at 4-4,
+   * no-ad, and a 10-point match tiebreak instead of a third set.
+   */
   fast4: {
     bestOf: 3,
     gamesPerSet: 4,
     tiebreakAt: 3,
     tiebreakPoints: 5,
     tiebreakSuddenDeath: true,
-    finalSetMatchTiebreak: false,
+    finalSetMatchTiebreak: true,
     matchTiebreakPoints: 10,
     noAd: true,
   },
@@ -51,17 +54,9 @@ export const FORMAT_PRESET_LABELS: Record<FormatPresetKey, string> = {
   fast4: 'Fast4 (sets to 4)',
 };
 
-/** Exactly the Fast4 rules (whatever the no-ad setting, which is shown separately). */
+/** Best of 3 sets to 4 games with a tiebreak at 3-3; the tiebreak, third set and no-ad details vary by event. */
 export function isFast4(f: MatchFormat): boolean {
-  const p = FORMAT_PRESETS.fast4;
-  return (
-    f.bestOf === p.bestOf &&
-    f.gamesPerSet === p.gamesPerSet &&
-    f.tiebreakAt === p.tiebreakAt &&
-    f.tiebreakPoints === p.tiebreakPoints &&
-    !!f.tiebreakSuddenDeath &&
-    !f.finalSetMatchTiebreak
-  );
+  return f.bestOf === 3 && f.gamesPerSet === 4 && f.tiebreakAt === 3;
 }
 
 export function setsToWin(format: MatchFormat): number {

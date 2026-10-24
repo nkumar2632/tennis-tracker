@@ -23,10 +23,10 @@ picks up the new version.
 
 - **New match:** the opponent, who serves first, and the format are all you need; the rest can be
   filled in later from the match menu (••• → Match details).
-- **Formats:** best of 3, 2 sets + match tiebreak, 8-game pro set, and **Fast4** (UTR events: sets
-  to 4 games, a 5-point tiebreak at 3-3 decided by one point at 4-4, no-ad). Everything can be
-  adjusted under **Adjust**. In a Fast4 tiebreak the 4-4 point is served by the player who received
-  first.
+- **Formats:** best of 3, 2 sets + match tiebreak, 8-game pro set, and **Fast4** (as UTR events play
+  it: sets to 4 games, a 5-point tiebreak at 3-3 decided by one point at 4-4, no-ad, and a 10-point
+  match tiebreak instead of a third set). Everything can be adjusted under **Adjust**, e.g. a 7-point
+  tiebreak. In a Fast4 tiebreak the 4-4 point is served by the player who received first.
 - **One tap per point** on the first serve: Ace, Unreturned, or how the rally ended (Winner /
   Unforced error / Forced error, under the player who hit that shot).
 - **Fault** on a first serve: the yellow 2ND SERVE banner appears. If the second serve goes in, just

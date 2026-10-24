@@ -63,7 +63,7 @@ describe('new match', () => {
     expect(screen.getByRole('radio', { name: 'Clay' }).getAttribute('aria-checked')).toBe('true');
   });
 
-  it('offers Fast4, which turns on no-ad and a one-point decider at 4-4', async () => {
+  it('offers Fast4, which turns on no-ad, a one-point decider at 4-4 and a third-set match tiebreak', async () => {
     const view = renderAt('/new');
     await screen.findByText('Who serves first?');
     const noAd = () => (screen.getByLabelText(/No-ad/) as HTMLInputElement).checked;
@@ -72,7 +72,9 @@ describe('new match', () => {
     radio('Fast4 (sets to 4)');
     expect(noAd()).toBe(true);
     expect(decider()).toBe(true);
-    expect(screen.getByText(/Adjust: Fast4: best of 3 sets to 4 games · 5-pt tiebreak at 3-3, deciding point at 4-4 · no-ad/)).toBeTruthy();
+    expect(
+      screen.getByText(/Adjust: Fast4: best of 3 sets to 4 games · 5-pt tiebreak at 3-3, deciding point at 4-4 · 10-pt match tiebreak for the 3rd set · no-ad/),
+    ).toBeTruthy();
     // Back to a regular format: no-ad and the decider go off again.
     radio('Best of 3 sets');
     expect(noAd()).toBe(false);
